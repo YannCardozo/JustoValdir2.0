@@ -1,0 +1,49 @@
+﻿@page "/logout"
+@inject NavigationManager navigation
+@inject TokenAuthenticationProvider authStateProvider
+
+
+
+
+
+
+
+
+
+
+
+@if (IsLoading)
+{
+    <CarregarTransicao Mensagem="Deslogando" />
+}
+<Aviso Exibir="Exibir">
+    <h5>
+        @Mensagem
+    </h5>
+</Aviso>
+@code {
+    private bool Exibir = false;
+    private bool IsLoading = true;
+
+    [Parameter]
+    public string Mensagem { get; set; } = "";
+
+    protected async override Task OnInitializedAsync()
+    {
+        try
+        {
+            await authStateProvider.Logout();   
+            navigation.NavigateTo("/login");
+        }
+        catch (Exception Ex)
+        {
+            Exibir = true;
+            Mensagem = "Não foi possível deslogar.";
+        }
+        finally
+        {
+            IsLoading = false;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+}

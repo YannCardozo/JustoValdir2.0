@@ -4,7 +4,7 @@
     <Authorized>
         @if (context.User.Identity != null && context.User.Identity.IsAuthenticated)
         {
-            <p>Olá, @context.User.Identity.Name (@context.User.FindFirst("email")?.Value)!</p>
+            <div class="mt-0">Olá, @context.User.FindFirst("email")?.Value!</div>
             <a href="Logout" class="nav-link btn btn-link">Log out</a>
         }
     </Authorized>

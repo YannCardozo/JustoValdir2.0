@@ -1,0 +1,90 @@
+﻿@page "/register"
+@using Commom.models
+@using System.ComponentModel.DataAnnotations
+@inject HttpClient http
+@inject NavigationManager navigation
+
+<h2>Registrar Novo Usuário</h2>
+
+@if(ExibeLoad == true)
+{
+    <CarregarTransicao Mensagem="Carregando"></CarregarTransicao>
+}
+
+<Aviso Exibir="Exibir">
+    <h5>@Mensagem</h5>
+</Aviso>
+
+<div class="card">
+    <div class="card-body">
+        <h5 class="card-title">Informe as credenciais do novo Usuário</h5>
+
+        <EditForm Model="FormRegistro" OnValidSubmit="RegistrarUsuario">
+            <DataAnnotationsValidator />
+
+            <div class="form-group">
+                <label for="email">Email</label>
+                <InputText class="form-control" @bind-Value="FormRegistro.Email" />
+                <ValidationMessage For="@(() => FormRegistro.Email)" />
+            </div>
+            <div class="form-group">
+                <label for="email">Usuário</label>
+                <InputText class="form-control" @bind-Value="FormRegistro.Username" />
+                <ValidationMessage For="@(() => FormRegistro.Username)" />
+            </div>
+            <div class="form-group">
+                <label for="password">Password</label>
+                <InputText type="password" class="form-control" @bind-Value="FormRegistro.Password" />
+                <ValidationMessage For="@(() => FormRegistro.Password)" />
+            </div>
+            <div class="form-group">
+                <label for="password">Cpf</label>
+                <InputText type="password" class="form-control" @bind-Value="FormRegistro.Cpf" />
+                <ValidationMessage For="@(() => FormRegistro.Cpf)" />
+            </div>
+            <button type="submit" class="btn btn-outline-primary btn-sm">
+                Registrar Usuário
+            </button>
+
+        </EditForm>
+    </div>
+</div>
+
+@code {
+
+
+    private RegisterModel FormRegistro = new RegisterModel();
+    private bool Exibir;
+    private bool ExibeLoad = false;
+
+    [Parameter]
+    public string Mensagem { get; set; }
+
+    private async Task RegistrarUsuario()
+    {
+        try
+        {
+            ExibeLoad = true;
+            var registerAsJson = JsonSerializer.Serialize(FormRegistro);
+
+            var httpResponse = await http.PostAsync("api/Auth/register",
+                 new StringContent(registerAsJson, Encoding.UTF8, "application/json"));
+
+            if (!httpResponse.IsSuccessStatusCode)
+            {
+                Exibir = true;
+                Mensagem = $"Não foi possível registrar o usuário.( Erro: {httpResponse.StatusCode})";
+            }
+            else
+            {
+                navigation.NavigateTo("/login");
+            }
+        }
+        catch
+        {
+            Exibir = true;
+            Mensagem = "Não foi possível realizar o Registro do usuário...";
+        }
+        ExibeLoad = false;
+    }
+}
