@@ -1,0 +1,40 @@
+﻿@page "/advogados"
+@using Justo.Entities.Entidades
+@inject IAdvogadoService AdvogadoService
+<h3>Advogados</h3>
+
+<div style="mt-5">
+    @if (AdvogadosLista != null && AdvogadosLista.Count > 0)
+    {
+        <table>
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var Elemento in AdvogadosLista)
+                {
+                    <tr>
+                        <td>
+                            <span>@Elemento.Nome</span>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+    else
+    {
+        <h5>Sem advogados no sistema.</h5>
+    }
+</div>
+
+@code {
+    public List<Advogado> AdvogadosLista { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        AdvogadosLista = await AdvogadoService.GetAdvogadosAsync();
+    }
+}

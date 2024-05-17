@@ -1,0 +1,49 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.Authorization;
+@using Microsoft.AspNetCore.Components.Authorization
+
+<PageTitle>Index</PageTitle>
+
+<h1>Hello, world!</h1>
+
+<Microsoft.AspNetCore.Components.Authorization.AuthorizeView Roles="Admin">
+    <Authorized>
+        <div>
+            <a class="btn btn-success" href="produto/create">Novo Produto</a>
+        </div>
+    </Authorized>
+    <NotAuthorized>
+        <h2>Somente usuário Admin pode incluir um produto</h2>
+    </NotAuthorized>
+</Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+
+
+Welcome to your new app.
+
+<SurveyPrompt Title="How is Blazor working for you?" />
+
+@code
+{
+    [CascadingParameter]
+    private Task<AuthenticationState> authenticationState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        var authState = await authenticationState;
+        var user = authState.User;
+
+        if(user.Identity.IsAuthenticated)
+        {
+            Console.WriteLine($"Bem vindo {user.Identity.Name}");
+            if(user.IsInRole("Admin"))
+            {
+                Console.WriteLine("Você é admin");
+            }
+
+        }
+        else
+        {
+            Console.WriteLine("voce nao esta autenticado");
+        }
+    }
+}
