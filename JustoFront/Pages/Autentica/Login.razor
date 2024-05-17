@@ -1,4 +1,5 @@
 ﻿@page "/login"
+@layout NoLayout
 @using Blazor_Catalogo.Client.Auth
 @using Commom
 @using Commom.models;
@@ -8,71 +9,109 @@
 @inject NavigationManager navigation
 @inject TokenAuthenticationProvider authStateProvider
 
-    <div class="container col-4">
-        <Aviso Exibir="loginFalhou">
-            <h5>@Mensagem</h5>
-        </Aviso>
-        <div class="card-body">
-            <h5 class="card-title">Login</h5>
-            <EditForm Model="userinfo" OnValidSubmit="FazerLogin">
-                <DataAnnotationsValidator />
 
-                <div class="form-group">
-                    <label>Usuário/Cpf:</label>
-                    <InputText class="form-control"
-                                @bind-Value="userinfo.Username" />
-            <ValidationMessage For="@(()=> userinfo.Username)" />
-                </div>
-                <div class="form-group">
-                    <label>Senha:</label>
-                    <InputText type="password" class="form-control"
-                                @bind-Value="userinfo.Password" />
-                    <ValidationMessage For="@(()=> userinfo.Password)" />
-                </div>
-                <button type="submit" class="btn btn-outline-primary btn-sm">Login</button>
-            </EditForm>
+
+
+
+<div id="app" class="normal-state">
+    @if (isProcessing)
+    {
+        <div class="spinner-overlay">
+            <div class="spinner-border text-primary" role="status">
+                <span class="visually-hidden">Loading...</span>
+            </div>
         </div>
-    </div>
+    }
+    else
+    {
+        <div class="container col-4">
+            <Aviso Exibir="loginFalhou">
+                <h5>@Mensagem</h5>
+            </Aviso>
+            <div class="card-body">
+                <h5 class="card-title">Login</h5>
+                <EditForm Model="userinfo" OnValidSubmit="FazerLogin">
+                    <DataAnnotationsValidator />
 
- @code {
-        private LoginModel userinfo = new LoginModel();
+                    <div class="form-group">
+                        <label>Usuário/Cpf:</label>
+                        <InputText class="form-control"
+                                   @bind-Value="userinfo.Username" />
+                        <ValidationMessage For="@(()=> userinfo.Username)" />
+                    </div>
+                    <div class="form-group">
+                        <label>Senha:</label>
+                        <InputText type="password" class="form-control"
+                                   @bind-Value="userinfo.Password" />
+                        <ValidationMessage For="@(()=> userinfo.Password)" />
+                    </div>
+                    <button type="submit" class="btn btn-outline-primary btn-sm">Login</button>
+                </EditForm>
+            </div>
+        </div>
+    }
+</div>
+<style>
+    .spinner-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(255, 255, 255, 0.8);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 1050;
+    }
 
-        bool loginFalhou = false;
+    .loading-state {
+        text-align: center;
+        min-height: 100vh;
+        align-content: center;
+    }
+</style>
 
-        [Parameter]
-        public string Mensagem { get; set; }
+@code {
+    private LoginModel userinfo = new LoginModel();
+    bool loginFalhou = false;
+    bool isProcessing = false;
 
-        async Task FazerLogin()
+    [Parameter]
+    public string Mensagem { get; set; }
+
+    async Task FazerLogin()
+    {
+        isProcessing = true; // Mostrar spinner
+        try
         {
-            try
+            var loginAsJson = JsonSerializer.Serialize(userinfo);
+            var httpResponse = await http.PostAsync("api/Auth/login",
+                     new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
+
+            if (httpResponse.IsSuccessStatusCode)
             {
-                //var result = await http.PostJsonAsync<UserToken>("api/account/login", userinfo);
+                var responseAsString = await httpResponse.Content.ReadAsStringAsync();
+                var loginResult = JsonSerializer.Deserialize<UserToken>(responseAsString,
+                     new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
-                var loginAsJson = JsonSerializer.Serialize(userinfo);
-
-                var httpResponse = await http.PostAsync("api/Auth/login",
-                         new StringContent(loginAsJson, Encoding.UTF8, "application/json"));
-
-                if (httpResponse.IsSuccessStatusCode)
-                {
-                    var responseAsString = await httpResponse.Content.ReadAsStringAsync();
-
-                    var loginResult = JsonSerializer.Deserialize<UserToken>(responseAsString,
-                         new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-
-                    await authStateProvider.Login(loginResult.Token);
-                    navigation.NavigateTo("/");
-                }
-                else
-                {
-                    loginFalhou = true;
-                    Mensagem = $"Não foi possível realizar o Login do usuário.(Erro: {httpResponse.StatusCode})";
-                }
+                await authStateProvider.Login(loginResult.Token);
+                navigation.NavigateTo("/");
             }
-            catch (Exception)
+            else
             {
                 loginFalhou = true;
-                Mensagem = "Não foi possível realizar o Login do Usuário...";
+                Mensagem = $"Não foi possível realizar o Login do usuário.(Erro: {httpResponse.StatusCode})";
             }
         }
+        catch (Exception)
+        {
+            loginFalhou = true;
+            Mensagem = "Não foi possível realizar o Login do Usuário...";
+        }
+        finally
+        {
+            isProcessing = false; // Esconder spinner
+        }
     }
+}
