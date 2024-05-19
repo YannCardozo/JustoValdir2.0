@@ -75,13 +75,9 @@ var connectionString = builder.Configuration.GetConnectionString("DefaultConnect
 builder.Services.AddDbContext<ContextBase>(options =>
     options.UseSqlServer(connectionString));
 
-
-//builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
-//    options.SignIn.RequireConfirmedAccount = true)
-//    .AddEntityFrameworkStores<ContextBase>();
-
 //applicationuser esta HERDANDO identityuser****
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+    //.AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ContextBase>()
     .AddDefaultTokenProviders();
 //token marcoratti
@@ -100,45 +96,6 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
     });
 
-
-
-//builder.Services.AddAuthentication(options =>
-//{
-//    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
-//    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
-//}).AddJwtBearer(options =>
-//{
-//    options.SaveToken = true;
-//    //no desenvolvimento manter false, dps manter true apos lançar
-//    options.RequireHttpsMetadata = false;
-//    options.TokenValidationParameters = new TokenValidationParameters()
-//    {
-//        ValidateIssuer = true,
-//        ValidateAudience = true,
-//        ValidateLifetime = true,
-//        ValidateIssuerSigningKey = true,
-//        ClockSkew = TimeSpan.Zero,
-//        ValidAudience = builder.Configuration["JWT:ValidAudience"],
-//        ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-//        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
-//    };
-//});
-
-//builder.Services.AddAuthorization(options =>
-//{
-//    options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-//    options.AddPolicy("SuperAdminOnly", policy => policy.RequireRole("Admin").RequireClaim("id" , "Maria"));
-//    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
-
-//    options.AddPolicy("ExclusivePolicyOnly", policy =>
-//    {
-//        policy.RequireAssertion(context => context.User.HasClaim(Claim => Claim.Type == "id" && Claim.Value == "Maria")
-//        || context.User.IsInRole("SuperAdmin"));
-//    });
-
-
-
-//});
 builder.Services.AddAuthorization(options =>
 {
     // Política baseada em papel (role)

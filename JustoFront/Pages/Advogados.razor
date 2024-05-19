@@ -2,6 +2,7 @@
 @using Justo.Entities.Entidades
 @inject IAdvogadoService AdvogadoService
 <h3>Advogados</h3>
+@attribute [Authorize(Roles = "Admin")]
 
 <div style="mt-5">
     @if (AdvogadosLista != null && AdvogadosLista.Count > 0)

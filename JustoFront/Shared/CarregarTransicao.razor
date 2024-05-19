@@ -1,7 +1,15 @@
-﻿<div class="spinner-overlay">
-    <div class="spinner-border text-primary" role="status">
-        <span class="visually-hidden">@Mensagem</span>
-    </div>
+﻿@inject NavigationManager navigate
+
+
+@if(Redireciona)
+{
+    Aguarda();
+
+}
+
+<span class="loading-message">@Mensagem</span>
+<div class="spinner-overlay">
+    <div class="spinner-border text-primary" role="status"></div>
 </div>
 
 <style>
@@ -23,11 +31,33 @@
         min-height: 100vh;
         align-content: center;
     }
+
+    .loading-message {
+        position: fixed;
+        top: 45%;
+        transform: translateY(-50%);
+        font-size: 1.5rem;
+        color: #333;
+        z-index: 1060; /* Ensure the message is above the spinner */
+        text-align: center;
+        width: 100%;
+    }
 </style>
 
-
-@code
-{
+@code {
     [Parameter]
     public string Mensagem { get; set; } = "";
+
+    [Parameter]
+    public bool Redireciona { get; set; } = false;
+
+
+
+
+    public async Task Aguarda()
+    {
+        Task.Delay(2000);
+        navigate.NavigateTo("");
+    }
+
 }

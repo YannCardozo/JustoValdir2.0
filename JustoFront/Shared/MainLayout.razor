@@ -1,17 +1,21 @@
 ﻿@inherits LayoutComponentBase
-
-<div class="page">
-    <div class="sidebar">
-        <NavMenu />
-    </div>
-
-    <main>
-        <div class="top-row px-4">
-            <MenuAuthentication/>
+<AuthorizeView>
+    <Authorized>
+        <div class="page">
+            <div class="sidebar">
+                <NavMenu />
+            </div>
+            <main>
+                <div class="top-row px-4">
+                    <MenuAuthentication />
+                </div>
+                <article class="content px-4">
+                    @Body
+                </article>
+            </main>
         </div>
-
-        <article class="content px-4">
-            @Body
-        </article>
-    </main>
-</div>
+    </Authorized>
+    <NotAuthorized>
+        <CarregarTransicao Mensagem="Faça o login para continuar." Redireciona="true"/>
+    </NotAuthorized>
+</AuthorizeView>

@@ -1,19 +1,15 @@
-﻿@page "/login"
+﻿@page "/"
 @layout NoLayout
 @using Blazor_Catalogo.Client.Auth
 @using Commom
 @using Commom.models;
 @using System.Text.Json
 @using System.Text
-@inject HttpClient  http
+@inject HttpClient http
 @inject NavigationManager navigation
 @inject TokenAuthenticationProvider authStateProvider
 
-
-
-
-
-<div id="app" class="normal-state">
+<div id="app" class="justify-content-center align-items-center min-vh-100">
     @if (isProcessing)
     {
         <div class="spinner-overlay">
@@ -24,34 +20,76 @@
     }
     else
     {
-        <div class="container col-4">
-            <Aviso Exibir="loginFalhou">
-                <h5>@Mensagem</h5>
-            </Aviso>
-            <div class="card-body">
-                <h5 class="card-title">Login</h5>
-                <EditForm Model="userinfo" OnValidSubmit="FazerLogin">
-                    <DataAnnotationsValidator />
 
-                    <div class="form-group">
-                        <label>Usuário/Cpf:</label>
-                        <InputText class="form-control"
-                                   @bind-Value="userinfo.Username" />
-                        <ValidationMessage For="@(()=> userinfo.Username)" />
+        <div class="container" id="container-login">
+            <div class="col-4">
+                <Aviso Exibir="loginFalhou" >
+                    <h5>@Mensagem</h5>
+                </Aviso>
+            </div>
+
+            <div class="card login-card">
+                <div class="card-body">
+                    <div class="w-100 text-center mb-4">
+                        <h1 class="display-4 texto">Just ADV</h1>
                     </div>
-                    <div class="form-group">
-                        <label>Senha:</label>
-                        <InputText type="password" class="form-control"
-                                   @bind-Value="userinfo.Password" />
-                        <ValidationMessage For="@(()=> userinfo.Password)" />
-                    </div>
-                    <button type="submit" class="btn btn-outline-primary btn-sm">Login</button>
-                </EditForm>
+
+                    <EditForm Model="userinfo" OnValidSubmit="FazerLogin">
+                        <DataAnnotationsValidator />
+
+                        <div class="form-group mb-3">
+                            <label>Usuário/Cpf:</label>
+                            <InputText class="form-control"
+                                       @bind-Value="userinfo.Username" />
+                            <ValidationMessage For="@(() => userinfo.Username)" />
+                        </div>
+                        <div class="form-group mb-4">
+                            <label>Senha:</label>
+                            <InputText type="password" class="form-control"
+                                       @bind-Value="userinfo.Password" />
+                            <ValidationMessage For="@(() => userinfo.Password)" />
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary bt-logar">Logar</button>
+                        </div>
+                    </EditForm>
+                </div>
             </div>
         </div>
     }
 </div>
+
 <style>
+    .texto {
+        font-family: 'Mulish-Light' !important;
+    }
+    #container-login
+    {
+        text-align: -webkit-center;
+        min-height: 100vh;
+        place-content: center;
+    }
+
+    .login-card {
+        background-color: #fff;
+        border-radius: 25px;
+        width: 100%;
+        max-width: 400px;
+        padding: 30px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .bt-logar {
+        font-family: 'Mulish-Bold';
+        font-weight: bold;
+        font-size: 18px;
+        padding: 15px 0px;
+    }
+
+    #app {
+        background-color: #f0f0f0;
+    }
+
     .spinner-overlay {
         position: fixed;
         top: 0;
@@ -63,12 +101,6 @@
         align-items: center;
         justify-content: center;
         z-index: 1050;
-    }
-
-    .loading-state {
-        text-align: center;
-        min-height: 100vh;
-        align-content: center;
     }
 </style>
 
@@ -91,17 +123,18 @@
 
             if (httpResponse.IsSuccessStatusCode)
             {
+                loginFalhou = false;
                 var responseAsString = await httpResponse.Content.ReadAsStringAsync();
                 var loginResult = JsonSerializer.Deserialize<UserToken>(responseAsString,
                      new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
 
                 await authStateProvider.Login(loginResult.Token);
-                navigation.NavigateTo("/");
+                navigation.NavigateTo("/index");
             }
             else
             {
                 loginFalhou = true;
-                Mensagem = $"Não foi possível realizar o Login do usuário.(Erro: {httpResponse.StatusCode})";
+                Mensagem = $"Não foi possível realizar o Login do usuário. (Erro: {httpResponse.StatusCode})";
             }
         }
         catch (Exception)

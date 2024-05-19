@@ -7,7 +7,9 @@
                     <h1>Autorizando Usuário</h1>
                 </Authorizing>
                 <NotAuthorized>
-                    Usuário não autorizado
+                    <LayoutView Layout="@typeof(NoLayout)">
+                        <NaoAutorizado/>
+                    </LayoutView>
                 </NotAuthorized>
             </AuthorizeRouteView>
             <FocusOnNavigate RouteData="@routeData" Selector="h1" />
@@ -16,7 +18,7 @@
             <CascadingAuthenticationState>
                 <PageTitle>Not found</PageTitle>
                 <LayoutView Layout="@typeof(MainLayout)">
-                    <p role="alert">Sorry, there's nothing at this address.</p>
+                    <p role="alert">Não encontrado.</p>
                 </LayoutView>
             </CascadingAuthenticationState>
         </NotFound>

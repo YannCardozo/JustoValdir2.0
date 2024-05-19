@@ -99,3 +99,24 @@ a, .btn-link {
     .loading-progress-text:after {
         content: var(--blazor-load-percentage-text, "Loading");
     }
+
+@font-face {
+    font-family: 'Mulish-Black';
+    src: url('../fonts/Mulish-Black.woff');
+}
+
+@font-face {
+    font-family: 'Mulish-Bold';
+    src: url('../fonts/Mulish-Bold.woff');
+    font-weight: bold;
+}
+
+@font-face {
+    font-family: 'Mulish-Medium';
+    src: url('../fonts/Mulish-Medium.woff');
+}
+
+@font-face {
+    font-family: 'Mulish-Light';
+    src: url('../fonts/Mulish-Light.woff');
+}

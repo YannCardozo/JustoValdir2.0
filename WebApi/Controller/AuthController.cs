@@ -2,6 +2,7 @@
 using Commom.models;
 using Entities.Entidades;
 using Infra.Configuração;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +19,7 @@ namespace WebApi.Controller
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize(AuthenticationSchemes = JwtBearerDefaults.AuthenticationScheme)]
     public class AuthController : ControllerBase
     {
         private readonly ITokenService _tokenService;
@@ -42,7 +44,7 @@ namespace WebApi.Controller
             _context = context;
         }
 
-
+   
         [HttpPost]
         [Route("CreateRole")]
         public async Task<IActionResult> CreateRole(string roleName)
@@ -95,6 +97,7 @@ namespace WebApi.Controller
             return BadRequest($"Não foi localizado o email: {email}");
         }
 
+        [AllowAnonymous]
         [HttpPost]
         [Route("login")]
         public async Task<IActionResult> Login([FromBody] LoginModel model)

@@ -1,0 +1,16 @@
+﻿@layout NoLayout
+@inject NavigationManager Navigation
+
+
+<h5>Faça o login para continuar.</h5>
+<CarregarTransicao/>
+
+
+@code{
+    protected override async Task OnInitializedAsync()
+    {
+
+        Task.Delay(1000);
+        Navigation.NavigateTo("");
+    }
+}
