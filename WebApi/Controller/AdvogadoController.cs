@@ -48,7 +48,7 @@ namespace WebApi.Controller
             }
         }
 
-    [Authorize(Policy = "AdminOnly")]
+        [Authorize(Policy = "AdminOnly")]
         [Produces("application/json")]
         [HttpGet("DeleteAdvogados/{id}")]
         public async Task<IActionResult> DeleteAdvogados(int id)

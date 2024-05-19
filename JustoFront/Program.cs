@@ -1,5 +1,6 @@
 using Blazor_Catalogo.Client.Auth;
 using JustoFront;
+using JustoFront.Services;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;
@@ -18,8 +19,11 @@ builder.Services.AddScoped<AuthenticationStateProvider, TokenAuthenticationProvi
 //builder.Services.AddScoped<AuthenticationStateProvider, TokenAuthenticationProvider>();
 builder.RootComponents.Add<App>("#app");
 builder.RootComponents.Add<HeadOutlet>("head::after");
-builder.Services.AddScoped<IAdvogadoService, AdvogadoService>();
 
+
+
+builder.Services.AddScoped<IAdvogadoService, AdvogadoService>();
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 
 //caso não esteja configurado isso NÃO CONSEGUIRÁ solicitar da API
 //Utilizar em casa

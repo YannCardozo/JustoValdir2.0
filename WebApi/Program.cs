@@ -77,7 +77,7 @@ builder.Services.AddDbContext<ContextBase>(options =>
 
 //applicationuser esta HERDANDO identityuser****
 builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
-    //.AddRoles<IdentityRole>()
+    .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ContextBase>()
     .AddDefaultTokenProviders();
 //token marcoratti

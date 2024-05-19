@@ -1,6 +1,7 @@
 ﻿using Entities.Entidades;
 using Justo.Entities.Entidades;
 using JustoNovo.Domain.ProcessosEntidades;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -63,7 +64,31 @@ namespace Infra.Configuração
                 .HasIndex(u => u.Cpf)
                 .IsUnique();
 
+
+
+            //manipulando a tabela de perfis do IDENTITTY
+
+            builder.Entity<IdentityRole>().HasData
+                (new IdentityRole
+                {
+                    Name = "Usuário",
+                    NormalizedName = "USUÁRIO",
+                    Id = Guid.NewGuid().ToString(),
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                });
+
+            builder.Entity<IdentityRole>().HasData
+                (new IdentityRole
+                {
+                    Name = "Admin",
+                    NormalizedName = "ADMIN",
+                    Id = Guid.NewGuid().ToString(),
+                    ConcurrencyStamp = Guid.NewGuid().ToString()
+                });
             base.OnModelCreating(builder);
+
+
+
         }
 
         //public string ObterStringConexao()

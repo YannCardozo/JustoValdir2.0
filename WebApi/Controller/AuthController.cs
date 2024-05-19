@@ -44,7 +44,6 @@ namespace WebApi.Controller
             _context = context;
         }
 
-   
         [HttpPost]
         [Route("CreateRole")]
         public async Task<IActionResult> CreateRole(string roleName)
@@ -124,6 +123,7 @@ namespace WebApi.Controller
                 {
                     var userRoles = await _userManager.GetRolesAsync(user);
 
+
                     var authClaims = new List<Claim>
                     {
                         new Claim(ClaimTypes.Name, user.UserName!),
@@ -145,14 +145,8 @@ namespace WebApi.Controller
 
                     user.RefreshTokenExpiryTime = DateTime.Now.AddMinutes(refreshTokenValidityInMinutes);
                     user.RefreshToken = refreshToken;
-
-
                     await _userManager.UpdateAsync(user);
 
-                    foreach (var testando in authClaims)
-                    {
-                        Console.WriteLine($"sou: {testando.ToString()} ");
-                    }
                     return Ok(new
                     {
                         Token = new JwtSecurityTokenHandler().WriteToken(token),
@@ -169,6 +163,7 @@ namespace WebApi.Controller
                 return StatusCode(StatusCodes.Status500InternalServerError, "Erro no servidor. Tente novamente mais tarde.");
             }
         }
+        [AllowAnonymous]
         [HttpPost]
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
@@ -189,12 +184,13 @@ namespace WebApi.Controller
                 CPF = model.Cpf
             };
             var result = await _userManager.CreateAsync(user, model.Password!);
-
             if(!result.Succeeded)
             {
                 return BadRequest($"Erro ao criar usuário {model.Username}. valor de result: {result.ToString()}");
             }
 
+            //atribuindo ao perfil de usuário como DEFAULT ao criar o registro.
+            await _userManager.AddToRoleAsync(user, "Usuário");
             return Ok($"Usuário {model.Username} Criado com sucesso");
         }
 
