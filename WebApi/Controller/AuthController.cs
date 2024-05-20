@@ -43,7 +43,7 @@ namespace WebApi.Controller
             _logger = logger;
             _context = context;
         }
-
+        [AllowAnonymous]
         [HttpPost]
         [Route("CreateRole")]
         public async Task<IActionResult> CreateRole(string roleName)

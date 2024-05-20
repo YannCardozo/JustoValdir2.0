@@ -1,6 +1,6 @@
-﻿@typeparam T
-
-
+﻿@using Commom.models.Usuarios
+@using JustoFront.Services
+@inject IUsuarioService UsuarioService
 @inject IJSRuntime JSRuntime
 
 @code {
@@ -11,17 +11,45 @@
     public EventCallback<bool> OnClose { get; set; }
 
     [Parameter]
-    public T Data { get; set; }
+    public UsuarioComRole UsuarioModal { get; set; }
 
     private void CloseModal()
     {
         ModalVisivel = false;
         OnClose.InvokeAsync(ModalVisivel);
     }
+
+    private List<string> Roles { get; set; } = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        Roles = await UsuarioService.GetRolesAsync();
+    }
+
+
+    private async Task SalvarModal()
+    {
+        // Enviar os dados do usuário para a API de UpdateUser
+        var response = await UsuarioService.UpdateUserAsync(UsuarioModal);
+
+        if (response.IsSuccessStatusCode)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Usuário atualizado com sucesso.");
+            CloseModal();
+        }
+        else
+        {
+            var errorContent = await response.Content.ReadAsStringAsync();
+            await JSRuntime.InvokeVoidAsync("alert", $"Erro ao atualizar usuário: {errorContent}");
+        }
+        Roles = await UsuarioService.GetRolesAsync();
+        StateHasChanged();
+    }
+
 }
+
 @if (ModalVisivel)
 {
-
     <div class="modal show" tabindex="-1" role="dialog" style="display:block">
         <div class="modal-dialog" role="document">
             <div class="modal-content">
@@ -32,21 +60,51 @@
                     </button>
                 </div>
                 <div class="modal-body">
-                    @if (Data != null)
+                    @if (UsuarioModal != null)
                     {
-                        <EditForm Model="Data">
-                            @foreach (var property in typeof(T).GetProperties())
-                            {
-                                <div class="d-flex">
-                                    <label>@property.Name</label>
-                                    <input type="text" class="form-control" placeholder="@property.Name" value="@property.GetValue(Data)" />
+                        <EditForm Model="UsuarioModal">
+                            <div class="row g-3 align-items-center">
+                                <div class="col-auto">
+                                    <label for="inputPassword6" class="col-form-label">Usuário:</label>
                                 </div>
-                            }
+                                <div class="col-auto">
+                                    <InputText class="form-control" @bind-Value="UsuarioModal.UserName" />
+                                </div>
+                            </div>
+                            <div class="row g-3 align-items-center mt-1" >
+                                <div class="col-auto">
+                                    <label for="Email" class="col-form-label">Email:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <InputText class="form-control" @bind-Value="UsuarioModal.Email" />
+                                </div>
+                            </div>
+                            <div class="row g-3 align-items-center mt-1">
+                                <div class="col-auto">
+                                    <label for="Cpf" class="col-form-label">CPF:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <InputText class="form-control" @bind-Value="UsuarioModal.CPF" />
+                                </div>
+                            </div>
+                            <div class="row g-3 align-items-center mt-1">
+                                <div class="col-auto">
+                                    <label for="Perfis" class="col-form-label">Perfis:</label>
+                                </div>
+                                <div class="col-auto">
+                                    <InputSelect class="form-control" @bind-Value="UsuarioModal.RoleSelecionado">
+                                        @foreach (var role in Roles)
+                                        {
+                                            <option value="@role">@role</option>
+                                        }
+                                    </InputSelect>
+                                </div>
+                            </div>
                         </EditForm>
                     }
                 </div>
                 <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Salvar</button>
+                    <button type="button" class="btn btn-secondary" @onclick="SalvarModal">Salvar</button>
                     <button type="button" class="btn btn-secondary" @onclick="CloseModal">Fechar</button>
                 </div>
             </div>

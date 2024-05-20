@@ -12,5 +12,6 @@ namespace Commom.models.Usuarios
         public string Email { get; set; }
         public string CPF { get; set; }
         public IList<string> Roles { get; set; }
+        public string RoleSelecionado { get; set; }
     }
 }

@@ -9,6 +9,8 @@ namespace JustoFront.Services
     public interface IUsuarioService
     {
         Task<List<UsuarioComRole>> GetUsuariosAsync();
+        Task<List<string>> GetRolesAsync();
+        Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuario);
     }
 
     public class UsuarioService : IUsuarioService
@@ -42,5 +44,35 @@ namespace JustoFront.Services
             }
             return null; // Retorna null em caso de falha
         }
+
+        public async Task<List<string>> GetRolesAsync()
+        {
+            var response = await _httpClient.GetAsync("api/Usuarios/GetRoles");
+            if (response.IsSuccessStatusCode)
+            {
+                try
+                {
+                    return await response.Content.ReadFromJsonAsync<List<string>>();
+                }
+                catch (JsonException ex)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync();
+                    Console.WriteLine($"JSON Exception: {ex.Message}, Content: {errorContent}");
+                }
+            }
+            else
+            {
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"Error: {response.StatusCode}, Content: {errorContent}");
+            }
+            return null; // Retorna null em caso de falha
+        }
+
+        public async Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuario)
+        {
+            var response = await _httpClient.PutAsJsonAsync("api/Usuarios/UpdateUser", usuario);
+            return response;
+        }
     }
+
 }
