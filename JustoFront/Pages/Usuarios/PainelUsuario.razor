@@ -17,6 +17,9 @@ else if (usuarios.Count == 0)
 }
 else
 {
+    <button class="btn btn-primary" @onclick="AdicionarUsuario">
+        <i class="bi bi-plus-square"></i>Adicionar
+    </button>
     <table class="table">
         <thead style="text-align:center;">
             <tr>
@@ -48,7 +51,7 @@ else
                         }
                         else
                         {
-                            <span>usuário sem email cadastrado.</span>
+                            <span>Usuário sem email cadastrado.</span>
                         }
                     </td>
                     <td>
@@ -58,7 +61,7 @@ else
                         }
                         else
                         {
-                            <span>usuário sem cpf cadastrado.</span>
+                            <span>Usuário sem CPF cadastrado.</span>
                         }
                     </td>
                     <td>
@@ -68,27 +71,19 @@ else
                         }
                         else
                         {
-                            <span>usuário sem perfil cadastrado.</span>
+                            <span>Usuário sem perfil cadastrado.</span>
                         }
                     </td>
                     <td>
-                        @if (usuario != null)
-                        {
-                            <button class="btn btn-primary" @onclick="() => AbrirModal(usuario)">Ver Detalhes</button>
-                        }
-                        else
-                        {
-                            <span>sem ações disponíveis.</span>
-                        }
+                        <button class="btn btn-primary" @onclick="@(e => AbrirModal(usuario, "Update"))">Ver Detalhes</button>
                     </td>
                 </tr>
             }
         </tbody>
     </table>
 }
-<ModalPainel UsuarioModal="usuarioSelecionado" ModalVisivel="ModalAberto" OnClose="FecharModal"></ModalPainel>
 
-
+<ModalPainel UsuarioModal="usuarioSelecionado" ModalVisivel="ModalAberto" OnClose="FecharModal" TipoCrud="TipoModal" />
 
 <style>
     th, tr, thead, td {
@@ -159,6 +154,7 @@ else
 </style>
 
 @code {
+    private string TipoModal { get; set; }
     private List<UsuarioComRole> usuarios;
     private bool ModalAberto = false;
     public UsuarioComRole usuarioSelecionado;
@@ -168,9 +164,10 @@ else
         usuarios = await UsuarioService.GetUsuariosAsync();
     }
 
-    public void AbrirModal(UsuarioComRole usuario)
+    public void AbrirModal(UsuarioComRole usuario, string tipo)
     {
         usuarioSelecionado = usuario;
+        TipoModal = tipo;
         ModalAberto = true;
         StateHasChanged();
     }
@@ -178,6 +175,15 @@ else
     public void FecharModal()
     {
         ModalAberto = false;
+        TipoModal = "";
+        StateHasChanged();
+    }
+
+    public void AdicionarUsuario()
+    {
+        usuarioSelecionado = new UsuarioComRole();
+        TipoModal = "Criar";
+        ModalAberto = true;
         StateHasChanged();
     }
 }

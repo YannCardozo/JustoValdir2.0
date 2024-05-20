@@ -8,6 +8,7 @@ namespace JustoFront.Services
 {
     public interface IUsuarioService
     {
+        Task<HttpResponseMessage> CreateUsuarioAsync(UsuarioComRole user);
         Task<List<UsuarioComRole>> GetUsuariosAsync();
         Task<List<string>> GetRolesAsync();
         Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuario);
@@ -21,6 +22,14 @@ namespace JustoFront.Services
         {
             _httpClient = httpClient;
         }
+
+
+        public async Task<HttpResponseMessage> CreateUsuarioAsync(UsuarioComRole user)
+        {
+            var response = await _httpClient.PostAsJsonAsync("api/Auth/register", user);
+            return response;
+        }
+
 
         public async Task<List<UsuarioComRole>> GetUsuariosAsync()
         {

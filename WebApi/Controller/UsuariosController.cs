@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using System.Linq;
 
 
 
@@ -34,16 +35,11 @@ public class UsuariosController : ControllerBase
     {
         try
         {
-            if(model.RoleSelecionado == null)
-            {
-                return BadRequest($"Preencha o Perfil do usuário para continuar.");
-            }
-            // Encontrar o usuário pelo nome de usuário fornecido no model
-            var user = await _userManager.Users.Where(u => u.UserName == model.UserName).SingleOrDefaultAsync();
+            var roles = _roleManager.Roles.Select(r => r.Name).ToList();
 
-            if (user != null)
+            if (string.IsNullOrEmpty(model.RoleSelecionado) || !roles.Contains(model.RoleSelecionado))
             {
-                return NotFound($"Usuário {model.UserName} já está em uso.");
+                return BadRequest("Preencha o Perfil do usuário para continuar.");
             }
 
             // Verificar se o email já está em uso por outro usuário
@@ -56,17 +52,31 @@ public class UsuariosController : ControllerBase
                 return BadRequest($"O email '{model.Email}' já está em uso.");
             }
 
-            // Verificar se o username já está em uso por outro usuário (redundante aqui pois já achamos o usuário pelo username)
-            // Apenas se estiver mudando o username, então faremos essa verificação
+            // Verificar se o username já está em uso por outro usuário
+            var userWithUsername = await _userManager.Users
+                .Where(u => u.UserName == model.UserName && u.UserName != model.UserName)
+                .SingleOrDefaultAsync();
+
+            if (userWithUsername != null)
+            {
+                return BadRequest($"O nome de usuário '{model.UserName}' já está em uso.");
+            }
 
             // Verificar se o CPF já está em uso por outro usuário
             var userWithCpf = await _userManager.Users
-                .Where(u => u.CPF == model.CPF)
+                .Where(u => u.CPF == model.CPF && u.UserName != model.UserName)
                 .SingleOrDefaultAsync();
 
             if (userWithCpf != null)
             {
                 return BadRequest($"O CPF '{model.CPF}' já está em uso.");
+            }
+
+            // Encontrar o usuário pelo nome de usuário fornecido no model
+            var user = await _userManager.FindByNameAsync(model.UserName);
+            if (user == null)
+            {
+                return NotFound($"Usuário com o nome de usuário '{model.UserName}' não encontrado.");
             }
 
             // Obter roles atuais do usuário
@@ -90,8 +100,13 @@ public class UsuariosController : ControllerBase
             // Atualizar propriedades do usuário
             user.UserName = model.UserName;
             user.CPF = model.CPF;
-            user.Email = model.Email;
-            
+
+
+            if (model.Email.Contains("@")) ;
+            {
+                user.Email = model.Email;
+            }
+
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
