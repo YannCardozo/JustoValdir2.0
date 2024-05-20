@@ -2,6 +2,7 @@
 @using JustoFront.Services
 @inject IUsuarioService UsuarioService
 @inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
 
 @code {
     [Parameter]
@@ -35,6 +36,7 @@
         if (response.IsSuccessStatusCode)
         {
             await JSRuntime.InvokeVoidAsync("alert", "Usuário atualizado com sucesso.");
+            await InvokeAsync(StateHasChanged);
             CloseModal();
         }
         else
@@ -43,7 +45,8 @@
             await JSRuntime.InvokeVoidAsync("alert", $"Erro ao atualizar usuário: {errorContent}");
         }
         Roles = await UsuarioService.GetRolesAsync();
-        StateHasChanged();
+        await InvokeAsync(StateHasChanged);
+        Navigation.NavigateTo("/Painel");
     }
 
 }
@@ -93,6 +96,7 @@
                                 </div>
                                 <div class="col-auto">
                                     <InputSelect class="form-control" @bind-Value="UsuarioModal.RoleSelecionado">
+                                        <option disabled selected value="">Selecione um perfil</option>
                                         @foreach (var role in Roles)
                                         {
                                             <option value="@role">@role</option>

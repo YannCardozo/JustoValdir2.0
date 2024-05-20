@@ -34,16 +34,44 @@ public class UsuariosController : ControllerBase
     {
         try
         {
-            var user = await _userManager.FindByNameAsync(model.UserName);
-
-            if (user == null)
+            if(model.RoleSelecionado == null)
             {
-                return NotFound($"{model.UserName} não encontrado.");
+                return BadRequest($"Preencha o Perfil do usuário para continuar.");
+            }
+            // Encontrar o usuário pelo nome de usuário fornecido no model
+            var user = await _userManager.Users.Where(u => u.UserName == model.UserName).SingleOrDefaultAsync();
+
+            if (user != null)
+            {
+                return NotFound($"Usuário {model.UserName} já está em uso.");
+            }
+
+            // Verificar se o email já está em uso por outro usuário
+            var userWithEmail = await _userManager.Users
+                .Where(u => u.Email == model.Email && u.UserName != model.UserName)
+                .SingleOrDefaultAsync();
+
+            if (userWithEmail != null)
+            {
+                return BadRequest($"O email '{model.Email}' já está em uso.");
+            }
+
+            // Verificar se o username já está em uso por outro usuário (redundante aqui pois já achamos o usuário pelo username)
+            // Apenas se estiver mudando o username, então faremos essa verificação
+
+            // Verificar se o CPF já está em uso por outro usuário
+            var userWithCpf = await _userManager.Users
+                .Where(u => u.CPF == model.CPF)
+                .SingleOrDefaultAsync();
+
+            if (userWithCpf != null)
+            {
+                return BadRequest($"O CPF '{model.CPF}' já está em uso.");
             }
 
             // Obter roles atuais do usuário
             var currentRoles = await _userManager.GetRolesAsync(user);
-            var newRole = model.RoleSelecionado; // Assume que 'SelectedRole' é a nova role do usuário
+            var newRole = model.RoleSelecionado; // Assume que 'RoleSelecionado' é a nova role do usuário
 
             // Remover roles atuais
             var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
@@ -63,6 +91,7 @@ public class UsuariosController : ControllerBase
             user.UserName = model.UserName;
             user.CPF = model.CPF;
             user.Email = model.Email;
+            
 
             var updateResult = await _userManager.UpdateAsync(user);
             if (!updateResult.Succeeded)
@@ -79,7 +108,7 @@ public class UsuariosController : ControllerBase
         }
     }
 
-    [Authorize]
+    [AllowAnonymous]
     [HttpGet]
     [Route("GetUsuarios")]
     public async Task<IActionResult> GetUsuarios()
