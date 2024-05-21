@@ -17,7 +17,7 @@ else if (usuarios.Count == 0)
 }
 else
 {
-    <button class="btn btn-primary" @onclick="AdicionarUsuario">
+    <button class="btn btn-primary" @* @onclick="AdicionarUsuario" *@>
         <i class="bi bi-plus-square"></i>Adicionar
     </button>
     <table class="table">
@@ -83,7 +83,7 @@ else
     </table>
 }
 
-<ModalPainel UsuarioModal="usuarioSelecionado" ModalVisivel="ModalAberto" OnClose="FecharModal" TipoCrud="TipoModal" />
+<ModalPainelEdit UsuarioModal="usuarioSelecionado" ModalVisivel="ModalAberto" OnClose="FecharModal" />
 
 <style>
     th, tr, thead, td {
@@ -179,11 +179,11 @@ else
         StateHasChanged();
     }
 
-    public void AdicionarUsuario()
-    {
-        usuarioSelecionado = new UsuarioComRole();
-        TipoModal = "Criar";
-        ModalAberto = true;
-        StateHasChanged();
-    }
+    // public void AdicionarUsuario()
+    // {
+    //     usuarioSelecionado = new UsuarioComRole();
+    //     TipoModal = "Criar";
+    //     ModalAberto = true;
+    //     StateHasChanged();
+    // }
 }

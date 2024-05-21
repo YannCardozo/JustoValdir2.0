@@ -6,9 +6,6 @@
 
 @code {
     [Parameter]
-    public string TipoCrud { get; set; }
-
-    [Parameter]
     public bool ModalVisivel { get; set; }
 
     [Parameter]
@@ -32,31 +29,31 @@
 
     private async Task SalvarModal()
     {
-        HttpResponseMessage response;
-        if (TipoCrud == "Update")
-        {
-            response = await UsuarioService.UpdateUserAsync(UsuarioModal);
-        }
-        else
-        {
-            response = await UsuarioService.CreateUsuarioAsync(UsuarioModal);
-        }
+        // HttpResponseMessage response;
+        // if (TipoCrud == "Update")
+        // {
+        //     response = await UsuarioService.UpdateUserAsync(UsuarioModal);
+        // }
+        // else
+        // {
+        //     response = await UsuarioService.CreateUsuarioAsync(UsuarioModal);
+        // }
 
-        if (response.IsSuccessStatusCode)
-        {
-            string mensagem = TipoCrud == "Update" ? "Usuário atualizado com sucesso." : "Usuário criado com sucesso.";
-            await JSRuntime.InvokeVoidAsync("alert", mensagem);
-            await InvokeAsync(StateHasChanged);
-            CloseModal();
-        }
-        else
-        {
-            var errorContent = await response.Content.ReadAsStringAsync();
-            string mensagemErro = TipoCrud == "Update" ? "Erro ao atualizar usuário: " : "Erro ao criar usuário: ";
-            await JSRuntime.InvokeVoidAsync("alert", mensagemErro + errorContent);
-        }
-        Roles = await UsuarioService.GetRolesAsync();
-        Navigation.NavigateTo("/Painel");
+        // if (response.IsSuccessStatusCode)
+        // {
+        //     string mensagem = TipoCrud == "Update" ? "Usuário atualizado com sucesso." : "Usuário criado com sucesso.";
+        //     await JSRuntime.InvokeVoidAsync("alert", mensagem);
+        //     await InvokeAsync(StateHasChanged);
+        //     CloseModal();
+        // }
+        // else
+        // {
+        //     var errorContent = await response.Content.ReadAsStringAsync();
+        //     string mensagemErro = TipoCrud == "Update" ? "Erro ao atualizar usuário: " : "Erro ao criar usuário: ";
+        //     await JSRuntime.InvokeVoidAsync("alert", mensagemErro + errorContent);
+        // }
+        // Roles = await UsuarioService.GetRolesAsync();
+        // Navigation.NavigateTo("/Painel");
     }
 }
 
@@ -66,7 +63,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">@TipoCrud == "Update" ? "Detalhes do Usuário" : "Adicionar Novo Usuário"</h5>
+                    <h5 class="modal-title">Editar Usuário: @UsuarioModal.Email</h5>
                     <button type="button" class="close" aria-label="Close" @onclick="CloseModal">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -108,7 +105,7 @@
                                     <label for="Password" class="col-form-label">Senha:</label>
                                 </div>
                                 <div class="col-auto">
-                                    <InputText type="password" class="form-control" @bind-Value="UsuarioModal.Password" />
+                                    <InputText type="password" class="form-control" @bind-Value="UsuarioModal.Password" id="password" />
                                     <ValidationMessage For="@(() => UsuarioModal.Password)" />
                                 </div>
                             </div>
