@@ -79,6 +79,21 @@ public class UsuariosController : ControllerBase
                 return NotFound($"Usuário com o nome de usuário '{model.UserName}' não encontrado.");
             }
 
+
+            if (!string.IsNullOrEmpty(model.Password))
+            {
+                // Aqui você poderia adicionar validação da senha conforme suas regras de negócio
+                var token = await _userManager.GeneratePasswordResetTokenAsync(user);
+                var passwordResult = await _userManager.ResetPasswordAsync(user, token, model.Password);
+                if (!passwordResult.Succeeded)
+                {
+                    return BadRequest($"Erro ao atualizar a senha: {string.Join(", ", passwordResult.Errors.Select(e => e.Description))}");
+                }
+            }
+
+
+
+
             // Obter roles atuais do usuário
             var currentRoles = await _userManager.GetRolesAsync(user);
             var newRole = model.RoleSelecionado; // Assume que 'RoleSelecionado' é a nova role do usuário
@@ -100,7 +115,7 @@ public class UsuariosController : ControllerBase
             // Atualizar propriedades do usuário
             user.UserName = model.UserName;
             user.CPF = model.CPF;
-
+            
 
             if (model.Email.Contains("@")) ;
             {

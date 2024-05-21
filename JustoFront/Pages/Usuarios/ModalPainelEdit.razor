@@ -18,7 +18,7 @@
                 <div class="modal-body">
                     @if (UsuarioModal != null)
                     {
-                        <EditForm Model="UsuarioModal">
+                        <EditForm Model="UsuarioModal" OnValidSubmit="SalvarModal">
                             <DataAnnotationsValidator />
                             <div class="row g-3 align-items-center">
                                 <div class="col-12">
@@ -37,6 +37,16 @@
                                     <ValidationMessage For="@(() => UsuarioModal.CPF)" />
                                 </div>
                                 <div class="col-12 mt-2">
+                                    <label for="inputPassword" class="col-form-label">Senha:</label>
+                                    <div class="input-group">
+                                        <InputText type="@passwordInputType" class="form-control" @bind-Value="UsuarioModal.Password" id="inputPassword" />
+                                        <button type="button" class="btn btn-outline-secondary" @onclick="TogglePasswordVisibility">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <ValidationMessage For="@(() => UsuarioModal.Password)" />
+                                </div>
+                                <div class="col-12 mt-2">
                                     <label for="inputPerfis" class="col-form-label">Perfis:</label>
                                     <InputSelect class="form-control" @bind-Value="UsuarioModal.RoleSelecionado" id="inputPerfis">
                                         <option disabled selected value="">Selecione um perfil</option>
@@ -48,13 +58,13 @@
                                     <ValidationMessage For="@(() => UsuarioModal.RoleSelecionado)" />
                                 </div>
                             </div>
+                            <div class="col-12 mt-2" style="text-align-last: right;">
+                                <button type="submit" class="btn btn-secondary">Salvar</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Fechar</button>
+                            </div>
                         </EditForm>
-
+                        <CarregarTransicao Mensagem="" Redireciona="false" MostraComponente="MostraComponenteEdit" />
                     }
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="SalvarModal">Salvar</button>
-                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Fechar</button>
                 </div>
             </div>
         </div>
@@ -64,7 +74,7 @@
     private bool showPassword = true;
     private string passwordInputType => showPassword ? "text" : "password";
     private string passwordIcon => showPassword ? "-slash" : "";
-
+    private bool MostraComponenteEdit = false;
     [Parameter]
     public bool ModalVisivel { get; set; }
 
@@ -94,30 +104,26 @@
 
     private async Task SalvarModal()
     {
-        // HttpResponseMessage response;
-        // if (TipoCrud == "Update")
-        // {
-        //     response = await UsuarioService.UpdateUserAsync(UsuarioModal);
-        // }
-        // else
-        // {
-        //     response = await UsuarioService.CreateUsuarioAsync(UsuarioModal);
-        // }
+        MostraComponenteEdit = true;
 
-        // if (response.IsSuccessStatusCode)
-        // {
-        //     string mensagem = TipoCrud == "Update" ? "Usuário atualizado com sucesso." : "Usuário criado com sucesso.";
-        //     await JSRuntime.InvokeVoidAsync("alert", mensagem);
-        //     await InvokeAsync(StateHasChanged);
-        //     CloseModal();
-        // }
-        // else
-        // {
-        //     var errorContent = await response.Content.ReadAsStringAsync();
-        //     string mensagemErro = TipoCrud == "Update" ? "Erro ao atualizar usuário: " : "Erro ao criar usuário: ";
-        //     await JSRuntime.InvokeVoidAsync("alert", mensagemErro + errorContent);
-        // }
-        // Roles = await UsuarioService.GetRolesAsync();
-        // Navigation.NavigateTo("/Painel");
+        try
+        {
+            var mensagemsucesso = "Usuário alterado com sucesso.";
+            var response = await UsuarioService.UpdateUserAsync(UsuarioModal);
+            await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
+            MostraComponenteEdit = false;
+            CloseModal();
+            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/Painel");
+
+        }
+        catch (Exception ex)
+        {
+            string mensagemErro = "Erro ao alterar usuário.";
+            await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
+            MostraComponenteEdit = false;
+            CloseModal();
+            Navigation.NavigateTo("/Painel");
+        }
     }
 }

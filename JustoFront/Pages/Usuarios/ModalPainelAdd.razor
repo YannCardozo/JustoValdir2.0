@@ -111,7 +111,6 @@
         {
             var mensagemsucesso = "Usuário criado com sucesso.";
             var response = await UsuarioService.CreateUsuarioAsync(UsuarioModal);
-            await Task.Delay(15000);
             await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
             MostraComponenteAdd = false;
             CloseModal();

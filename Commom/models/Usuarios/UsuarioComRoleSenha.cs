@@ -21,7 +21,7 @@ namespace Commom.models.Usuarios
         public string Email { get; set; }
 
         [Required(ErrorMessage = "O CPF é obrigatório.")]
-        //[CPFValidation(ErrorMessage = "O CPF não é válido.")]
+        [CPFValidationT(ErrorMessage = "O CPF não é válido.")]
         public string CPF { get; set; }
 
         [Required(ErrorMessage = "O perfil é obrigatório.")]
@@ -32,7 +32,7 @@ namespace Commom.models.Usuarios
         public string Password { get; set; }
     }
 
-    public class CPFValidation : ValidationAttribute
+    public class CPFValidationT : ValidationAttribute
     {
         public override bool IsValid(object value)
         {
