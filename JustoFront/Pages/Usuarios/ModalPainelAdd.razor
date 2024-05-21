@@ -18,7 +18,7 @@
                 <div class="modal-body">
                     @if (UsuarioModal != null)
                     {
-                        <EditForm Model="UsuarioModal">
+                        <EditForm Model="UsuarioModal" OnValidSubmit="SalvarModal">
                             <DataAnnotationsValidator />
                             <div class="row g-3 align-items-center">
                                 <div class="col-12">
@@ -58,13 +58,14 @@
                                     <ValidationMessage For="@(() => UsuarioModal.RoleSelecionado)" />
                                 </div>
                             </div>
+                            <div class="col-12 mt-2" style="text-align-last: right;">
+                                <button type="submit" class="btn btn-secondary">Salvar</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Fechar</button>
+                            </div>
                         </EditForm>
+                        <CarregarTransicao Mensagem="" Redireciona="false" MostraComponente="MostraComponenteAdd" />
 
                     }
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" @onclick="SalvarModal">Salvar</button>
-                    <button type="button" class="btn btn-secondary" @onclick="CloseModal">Fechar</button>
                 </div>
             </div>
         </div>
@@ -74,7 +75,7 @@
     private bool showPassword = true;
     private string passwordInputType => showPassword ? "text" : "password";
     private string passwordIcon => showPassword ? "-slash" : "";
-
+    private bool MostraComponenteAdd = false;
     [Parameter]
     public bool ModalVisivel { get; set; }
 
@@ -104,30 +105,27 @@
 
     private async Task SalvarModal()
     {
-        // HttpResponseMessage response;
-        // if (TipoCrud == "Update")
-        // {
-        //     response = await UsuarioService.UpdateUserAsync(UsuarioModal);
-        // }
-        // else
-        // {
-        //     response = await UsuarioService.CreateUsuarioAsync(UsuarioModal);
-        // }
+        MostraComponenteAdd = true;
 
-        // if (response.IsSuccessStatusCode)
-        // {
-        //     string mensagem = TipoCrud == "Update" ? "Usuário atualizado com sucesso." : "Usuário criado com sucesso.";
-        //     await JSRuntime.InvokeVoidAsync("alert", mensagem);
-        //     await InvokeAsync(StateHasChanged);
-        //     CloseModal();
-        // }
-        // else
-        // {
-        //     var errorContent = await response.Content.ReadAsStringAsync();
-        //     string mensagemErro = TipoCrud == "Update" ? "Erro ao atualizar usuário: " : "Erro ao criar usuário: ";
-        //     await JSRuntime.InvokeVoidAsync("alert", mensagemErro + errorContent);
-        // }
-        // Roles = await UsuarioService.GetRolesAsync();
-        // Navigation.NavigateTo("/Painel");
+        try
+        {
+            var mensagemsucesso = "Usuário criado com sucesso.";
+            var response = await UsuarioService.CreateUsuarioAsync(UsuarioModal);
+            await Task.Delay(15000);
+            await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
+            MostraComponenteAdd = false;
+            CloseModal();
+            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/Painel");
+
+        }
+        catch(Exception ex)
+        {
+            string mensagemErro = "Erro ao criar usuário.";
+            await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
+            MostraComponenteAdd = false;
+            CloseModal();
+            Navigation.NavigateTo("/Painel");
+        }
     }
 }
