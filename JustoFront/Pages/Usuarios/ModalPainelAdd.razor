@@ -10,7 +10,7 @@
         <div class="modal-dialog" role="document">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title">Editar Usuário</h5>
+                    <h5 class="modal-title">Adicionar Usuário</h5>
                     <button type="button" class="close" aria-label="Close" @onclick="CloseModal">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -35,6 +35,16 @@
                                     <label for="inputCpf" class="col-form-label">CPF:</label>
                                     <InputText class="form-control" @bind-Value="UsuarioModal.CPF" id="inputCpf" />
                                     <ValidationMessage For="@(() => UsuarioModal.CPF)" />
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <label for="inputPassword" class="col-form-label">Senha:</label>
+                                    <div class="input-group">
+                                        <InputText type="@passwordInputType" class="form-control" @bind-Value="UsuarioModal.Password" id="inputPassword" />
+                                        <button type="button" class="btn btn-outline-secondary" @onclick="TogglePasswordVisibility">
+                                            <i class="bi bi-eye"></i>
+                                        </button>
+                                    </div>
+                                    <ValidationMessage For="@(() => UsuarioModal.Password)" />
                                 </div>
                                 <div class="col-12 mt-2">
                                     <label for="inputPerfis" class="col-form-label">Perfis:</label>
@@ -72,7 +82,7 @@
     public EventCallback<bool> OnClose { get; set; }
 
     [Parameter]
-    public UsuarioComRole UsuarioModal { get; set; }
+    public UsuarioComRoleSenha UsuarioModal { get; set; } = new();
 
     private void CloseModal()
     {

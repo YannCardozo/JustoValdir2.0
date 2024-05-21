@@ -17,7 +17,7 @@ else if (usuarios.Count == 0)
 }
 else
 {
-    <button class="btn btn-primary" @* @onclick="AdicionarUsuario" *@>
+    <button class="btn btn-primary" @onclick="AdicionarUsuario">
         <i class="bi bi-plus-square"></i>Adicionar
     </button>
     <table class="table">
@@ -75,7 +75,7 @@ else
                         }
                     </td>
                     <td>
-                        <button class="btn btn-primary" @onclick="@(e => AbrirModal(usuario, "Update"))">Ver Detalhes</button>
+                        <button class="btn btn-primary" @onclick="@(e => AbrirModal(usuario))">Ver Detalhes</button>
                     </td>
                 </tr>
             }
@@ -83,107 +83,38 @@ else
     </table>
 }
 
-<ModalPainelEdit UsuarioModal="usuarioSelecionado" ModalVisivel="ModalAberto" OnClose="FecharModal" />
+<ModalPainelEdit UsuarioModal="usuarioSelecionado" ModalVisivel="ModalAbertoEdit" OnClose="FecharModal" />
+<ModalPainelAdd ModalVisivel="ModalAbertoAdd" OnClose="FecharModal" />
 
-<style>
-    th, tr, thead, td {
-        text-align: center;
-    }
-
-    .modal {
-        display: none;
-        position: fixed;
-        z-index: 1050;
-        left: 0;
-        top: 0;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-        outline: 0;
-        background-color: rgba(0, 0, 0, 0.5);
-    }
-
-        .modal.show {
-            display: block;
-        }
-
-    .modal-dialog {
-        position: relative;
-        margin: auto;
-        width: 80%;
-        max-width: 500px;
-        margin-top: 10%;
-    }
-
-    .modal-content {
-        position: relative;
-        display: flex;
-        flex-direction: column;
-        width: 100%;
-        pointer-events: auto;
-        background-color: #fff;
-        background-clip: padding-box;
-        border: 1px solid rgba(0, 0, 0, 0.2);
-        border-radius: 0.3rem;
-        outline: 0;
-    }
-
-    .modal-header {
-        display: flex;
-        align-items: flex-start;
-        justify-content: space-between;
-        padding: 1rem;
-        border-bottom: 1px solid #dee2e6;
-        border-top-left-radius: 0.3rem;
-        border-top-right-radius: 0.3rem;
-    }
-
-    .modal-body {
-        position: relative;
-        flex: 1 1 auto;
-        padding: 1rem;
-    }
-
-    .modal-footer {
-        display: flex;
-        align-items: center;
-        justify-content: flex-end;
-        padding: 1rem;
-        border-top: 1px solid #dee2e6;
-    }
-</style>
 
 @code {
-    private string TipoModal { get; set; }
     private List<UsuarioComRole> usuarios;
-    private bool ModalAberto = false;
-    public UsuarioComRole usuarioSelecionado;
+    private bool ModalAbertoAdd = false; 
+    private bool ModalAbertoEdit = false;
+    public UsuarioComRole usuarioSelecionado = new();
 
     protected override async Task OnInitializedAsync()
     {
         usuarios = await UsuarioService.GetUsuariosAsync();
     }
 
-    public void AbrirModal(UsuarioComRole usuario, string tipo)
+    public void AbrirModal(UsuarioComRole usuario)
     {
         usuarioSelecionado = usuario;
-        TipoModal = tipo;
-        ModalAberto = true;
+        ModalAbertoEdit = true;
         StateHasChanged();
     }
 
     public void FecharModal()
     {
-        ModalAberto = false;
-        TipoModal = "";
+        ModalAbertoEdit = false;
+        ModalAbertoAdd = false;
         StateHasChanged();
     }
 
-    // public void AdicionarUsuario()
-    // {
-    //     usuarioSelecionado = new UsuarioComRole();
-    //     TipoModal = "Criar";
-    //     ModalAberto = true;
-    //     StateHasChanged();
-    // }
+    public void AdicionarUsuario()
+    {
+        ModalAbertoAdd = true;
+        StateHasChanged();
+    }
 }
