@@ -1,5 +1,7 @@
-﻿using Entities.Entidades;
+﻿using Commom.models.Advogados;
+using Entities.Entidades;
 using Infra.Configuração;
+using Justo.Entities.Entidades;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -34,7 +36,7 @@ namespace WebApi.Controller
 
                 if (advogados == null || advogados.Count == 0)
                 {
-                    return NotFound("Sem Advogados cadastrados no sistema.");
+                    return Ok("Sem Advogados cadastrados no sistema.");
                 }
 
                 return Ok(advogados);
@@ -50,7 +52,7 @@ namespace WebApi.Controller
 
         [Authorize(Policy = "AdminOnly")]
         [Produces("application/json")]
-        [HttpGet("DeleteAdvogados/{id}")]
+        [HttpPost("DeleteAdvogados/{id}")]
         public async Task<IActionResult> DeleteAdvogados(int id)
         {
             try
@@ -81,8 +83,40 @@ namespace WebApi.Controller
             }
         }
 
+        [AllowAnonymous]
+        [Produces("application/json")]
+        [HttpPost("CreateAdvogado")]
+        public async Task<IActionResult> CreateAdvogado(AdvogadoDTO model)
+        {
+            try
+            {
+                var advogadoExistente = await _context.Advogado.FindAsync(model.Id);
 
+                if (advogadoExistente != null)
+                {
+                    return Conflict(new ApiResponse<ErrorResponse>
+                    {
+                        Data = $"Advogado com ID {model.Id} já está cadastrado no sistema."
+                    });
+                }
 
+                var AdvogadoASerCriado = new Advogado
+                {
+                    Cpf = model.Cpf,
+                    Nome = model.Nome,
+                    Oab = model.Oab
+                };
+
+                _context.Advogado.Add(AdvogadoASerCriado);
+                await _context.SaveChangesAsync();
+
+                return Ok($"Advogado {AdvogadoASerCriado.Nome} foi criado com sucesso.");
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"Ocorreu um erro ao criar o advogado: {ex.Message}");
+            }
+        }
 
     }
 }

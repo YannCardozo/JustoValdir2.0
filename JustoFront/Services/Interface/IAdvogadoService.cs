@@ -6,5 +6,6 @@ namespace JustoFront.Services.Interface
     public interface IAdvogadoService
     {
         Task<List<AdvogadoDTO>> GetAdvogadosAsync();
+        Task<HttpResponseMessage> CreateAdvogadoAsync(AdvogadoDTO advogado);
     }
 }

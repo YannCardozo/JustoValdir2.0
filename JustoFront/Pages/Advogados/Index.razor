@@ -16,10 +16,7 @@
     {
         <span><em>Carregando...</em></span>
     }
-    else if (AdvogadosLista.Count == 0)
-    {
-        <p>Nenhum usuário encontrado.</p>
-    }
+
     else
     {
         <button class="btn btn-primary" @onclick="AdicionarAdvogado">
@@ -76,6 +73,14 @@
             </tbody>
         </table>
     }
+}
+else
+{
+<button class="btn btn-primary" @onclick="AdicionarAdvogado">
+    <i class="bi bi-plus-square"></i>Adicionar
+</button>
+<p>Nenhum Advogado encontrado.</p>
+
 }
 <ModalAdvogadoEdit AdvogadoModal="AdvogadoSelecionado" ModalVisivel="ModalAbertoEdit" OnClose="FecharModal" />
 <ModalAdvogadoAdd ModalVisivel="ModalAbertoAdd" OnClose="FecharModal" />
