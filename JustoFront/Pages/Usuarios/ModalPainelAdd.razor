@@ -115,7 +115,7 @@
             MostraComponenteAdd = false;
             CloseModal();
             Navigation.NavigateTo("/");
-            Navigation.NavigateTo("/Painel");
+            Navigation.NavigateTo("/Usuarios/index");
 
         }
         catch(Exception ex)
@@ -124,7 +124,8 @@
             await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
             MostraComponenteAdd = false;
             CloseModal();
-            Navigation.NavigateTo("/Painel");
+            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/Usuarios/index");
         }
     }
 }

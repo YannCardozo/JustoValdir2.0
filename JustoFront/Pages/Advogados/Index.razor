@@ -1,0 +1,114 @@
+﻿@page "/advogados/index"
+@using Commom.models.Advogados
+@using Justo.Entities.Entidades
+@using JustoFront.Pages.Advogados
+@using JustoFront.Services.Interface
+@inject IAdvogadoService AdvogadoService
+@* @attribute [Authorize(Roles = "Admin")] *@
+
+
+@if (AdvogadosLista != null && AdvogadosLista.Count > 0)
+{
+
+    <h3>Painel de Advogados</h3>
+
+    @if (AdvogadosLista == null)
+    {
+        <span><em>Carregando...</em></span>
+    }
+    else if (AdvogadosLista.Count == 0)
+    {
+        <p>Nenhum usuário encontrado.</p>
+    }
+    else
+    {
+        <button class="btn btn-primary" @onclick="AdicionarAdvogado">
+            <i class="bi bi-plus-square"></i>Adicionar
+        </button>
+        <table class="table">
+            <thead style="text-align:center;">
+                <tr>
+                    <th>Nome</th>
+                    <th>OAB</th>
+                    <th>Cpf</th>
+                    <th>Acoes</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var Advogado in AdvogadosLista)
+                {
+                    <tr>
+                        <td>
+                            @if (!string.IsNullOrEmpty(Advogado.Nome))
+                            {
+                                <span>@Advogado.Nome</span>
+                            }
+                            else
+                            {
+                                <span>Advogado sem Nome cadastrado.</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(Advogado.Oab))
+                            {
+                                <span>@Advogado.Oab</span>
+                            }
+                            else
+                            {
+                                <span>Advogado sem Oab cadastrado.</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrEmpty(Advogado.Cpf))
+                            {
+                                <span>@Advogado.Cpf</span>
+                            }
+                            else
+                            {
+                                <span>Advogado sem CPF cadastrado.</span>
+                            }
+                        </td>
+                        <td>
+                            <button class="btn btn-primary" @onclick="@(e => AbrirModal(Advogado))">Ver Detalhes</button>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+}
+<ModalAdvogadoEdit AdvogadoModal="AdvogadoSelecionado" ModalVisivel="ModalAbertoEdit" OnClose="FecharModal" />
+<ModalAdvogadoAdd ModalVisivel="ModalAbertoAdd" OnClose="FecharModal" />
+
+@code {
+    private List<AdvogadoDTO> AdvogadosLista { get; set; } = new();
+
+    private bool ModalAbertoAdd = false;
+    private bool ModalAbertoEdit = false;
+    public AdvogadoDTO AdvogadoSelecionado = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        AdvogadosLista = await AdvogadoService.GetAdvogadosAsync();
+    }
+
+    public void AbrirModal(AdvogadoDTO Advogado)
+    {
+        AdvogadoSelecionado = Advogado;
+        ModalAbertoEdit = true;
+        StateHasChanged();
+    }
+
+    public void FecharModal()
+    {
+        ModalAbertoEdit = false;
+        ModalAbertoAdd = false;
+        StateHasChanged();
+    }
+
+    public void AdicionarAdvogado()
+    {
+        ModalAbertoAdd = true;
+        StateHasChanged();
+    }
+}

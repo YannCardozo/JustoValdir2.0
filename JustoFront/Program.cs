@@ -1,6 +1,7 @@
 using Blazor_Catalogo.Client.Auth;
 using JustoFront;
 using JustoFront.Services;
+using JustoFront.Services.Interface;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.AspNetCore.Components.Web;
 using Microsoft.AspNetCore.Components.WebAssembly.Hosting;

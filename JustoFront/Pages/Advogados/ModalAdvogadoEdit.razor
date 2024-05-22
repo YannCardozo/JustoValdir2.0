@@ -1,0 +1,96 @@
+﻿@using Commom.models.Advogados
+@using Commom.models.Usuarios
+@using JustoFront.Services
+@using JustoFront.Services.Interface
+@inject IAdvogadoService AdvogadoService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
+@if (ModalVisivel)
+{
+    <div class="modal show" tabindex="-1" role="dialog" style="display:block">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Editar Advogado</h5>
+                    <button type="button" class="close" aria-label="Close" @onclick="CloseModal">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    @if (AdvogadoModal != null)
+                    {
+                        <EditForm Model="AdvogadoModal" OnValidSubmit="SalvarModal">
+                            <DataAnnotationsValidator />
+                            <div class="row g-3 align-items-center">
+                                <div class="col-12">
+                                    <label for="inputUserName" class="col-form-label">Nome:</label>
+                                    <InputText class="form-control" @bind-Value="AdvogadoModal.Nome" id="inputUserName" />
+                                    <ValidationMessage For="@(() => AdvogadoModal.Nome)" />
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <label for="inputEmail" class="col-form-label">Cpf:</label>
+                                    <InputText class="form-control" @bind-Value="AdvogadoModal.Cpf" id="inputEmail" />
+                                    <ValidationMessage For="@(() => AdvogadoModal.Cpf)" />
+                                </div>
+                                <div class="col-12 mt-2">
+                                    <label for="inputCpf" class="col-form-label">OAB:</label>
+                                    <InputText class="form-control" @bind-Value="AdvogadoModal.Oab" id="inputCpf" />
+                                    <ValidationMessage For="@(() => AdvogadoModal.Oab)" />
+                                </div>
+                            </div>
+                            <div class="col-12 mt-2" style="text-align-last: right;">
+                                <button type="submit" class="btn btn-secondary">Salvar</button>
+                                <button type="button" class="btn btn-secondary" @onclick="CloseModal">Fechar</button>
+                            </div>
+                        </EditForm>
+                        <CarregarTransicao Mensagem="" Redireciona="false" MostraComponente="MostraComponenteEdit" />
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@code {
+    private bool MostraComponenteEdit = false;
+
+    [Parameter]
+    public bool ModalVisivel { get; set; }
+
+    [Parameter]
+    public EventCallback<bool> OnClose { get; set; }
+
+    [Parameter]
+    public AdvogadoDTO AdvogadoModal { get; set; }
+
+    private void CloseModal()
+    {
+        ModalVisivel = false;
+        OnClose.InvokeAsync(ModalVisivel);
+    }
+    private async Task SalvarModal()
+    {
+        MostraComponenteEdit = true;
+
+        try
+        {
+            var mensagemsucesso = "Advogado alterado com sucesso.";
+            //var response = await UsuarioService.UpdateUserAsync(UsuarioModal);
+            await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
+            MostraComponenteEdit = false;
+            CloseModal();
+            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/Advogado/index");
+
+        }
+        catch (Exception ex)
+        {
+            string mensagemErro = "Erro ao alterar Advogado.";
+            await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
+            MostraComponenteEdit = false;
+            CloseModal();
+            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/Advogado/index");
+        }
+    }
+}

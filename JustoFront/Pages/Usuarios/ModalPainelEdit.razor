@@ -71,10 +71,12 @@
     </div>
 }
 @code {
+    private List<string> Roles { get; set; } = new();
     private bool showPassword = true;
     private string passwordInputType => showPassword ? "text" : "password";
     private string passwordIcon => showPassword ? "-slash" : "";
     private bool MostraComponenteEdit = false;
+
     [Parameter]
     public bool ModalVisivel { get; set; }
 
@@ -89,8 +91,6 @@
         ModalVisivel = false;
         OnClose.InvokeAsync(ModalVisivel);
     }
-
-    private List<string> Roles { get; set; } = new();
 
     protected override async Task OnInitializedAsync()
     {
@@ -114,7 +114,7 @@
             MostraComponenteEdit = false;
             CloseModal();
             Navigation.NavigateTo("/");
-            Navigation.NavigateTo("/Painel");
+            Navigation.NavigateTo("/Usuarios/index");
 
         }
         catch (Exception ex)
@@ -123,7 +123,8 @@
             await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
             MostraComponenteEdit = false;
             CloseModal();
-            Navigation.NavigateTo("/Painel");
+            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/Usuarios/index");
         }
     }
 }
