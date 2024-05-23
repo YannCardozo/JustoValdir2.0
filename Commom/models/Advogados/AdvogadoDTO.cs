@@ -12,6 +12,7 @@ using static Commom.models.Validations.AdvogadoValidation;
 namespace Commom.models.Advogados
 {
     public class AdvogadoDTO : Base
+
     {
         [Required(ErrorMessage = "Advogado Precisa de um Nome")]
         public string Nome { get; set; }

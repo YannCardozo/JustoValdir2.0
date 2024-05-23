@@ -12,7 +12,7 @@ public class AdvogadoService : IAdvogadoService
 {
     private readonly HttpClient _httpClient;
     private Advogado ModelASerCriada = new();
-
+    private Advogado ModelASerAtualizada = new();
     public AdvogadoService(HttpClient httpClient)
     {
         _httpClient = httpClient;
@@ -70,6 +70,34 @@ public class AdvogadoService : IAdvogadoService
         response =  await _httpClient.PostAsJsonAsync("api/Advogado/CreateAdvogado", ModelASerCriada);
 
         return response; // Retornar o advogado criado
+    }
+
+    public async Task<HttpResponseMessage> UpdateAdvogadoAsync(AdvogadoDTO model)
+    {
+        var ListaAdvogados = await GetAdvogadosAsync();
+
+        if (ListaAdvogados != null && ListaAdvogados.Any(advogado => advogado.Cpf == model.Cpf))
+        {
+            var advogadoExistente = ListaAdvogados.FirstOrDefault(advogado => advogado.Cpf == model.Cpf);
+            if (advogadoExistente != null)
+            {
+                model.Id = advogadoExistente.Id; // Certifique-se de atribuir o ID existente ao modelo DTO
+                return await _httpClient.PutAsJsonAsync("api/Advogado/UpdateAdvogado", model);
+            }
+        }
+        else
+        {
+            Console.WriteLine($"Advogado {model.Cpf} não localizado.");
+            return new HttpResponseMessage(HttpStatusCode.NotFound)
+            {
+                ReasonPhrase = $"Advogado com CPF {model.Cpf} não localizado."
+            };
+        }
+
+        return new HttpResponseMessage(HttpStatusCode.BadRequest)
+        {
+            ReasonPhrase = "Erro ao atualizar advogado."
+        };
     }
 
 

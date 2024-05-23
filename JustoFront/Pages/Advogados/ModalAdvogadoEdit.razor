@@ -75,13 +75,23 @@
         try
         {
             var mensagemsucesso = "Advogado alterado com sucesso.";
-            //var response = await UsuarioService.UpdateUserAsync(UsuarioModal);
-            await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
+            var response = await AdvogadoService.UpdateAdvogadoAsync(AdvogadoModal);
+
+            if (response != null && response.IsSuccessStatusCode)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
+            }
+            else
+            {
+                string mensagemErro = response != null
+                    ? $"Erro ao alterar Advogado: {response.ReasonPhrase}"
+                    : "Erro ao alterar Advogado: Nenhuma resposta recebida.";
+                await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
+            }
+
             MostraComponenteEdit = false;
             CloseModal();
-            Navigation.NavigateTo("/");
-            Navigation.NavigateTo("/Advogado/index");
-
+            Navigation.NavigateTo("/advogados/index", true);
         }
         catch (Exception ex)
         {
@@ -89,8 +99,8 @@
             await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
             MostraComponenteEdit = false;
             CloseModal();
-            Navigation.NavigateTo("/");
-            Navigation.NavigateTo("/Advogado/index");
+            Navigation.NavigateTo("/advogados/index", true);
         }
     }
+
 }

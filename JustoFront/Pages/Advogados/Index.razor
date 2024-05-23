@@ -97,13 +97,24 @@ else
         AdvogadosLista = await AdvogadoService.GetAdvogadosAsync();
     }
 
-    public void AbrirModal(AdvogadoDTO Advogado)
+    // public void AbrirModal(AdvogadoDTO Advogado)
+    // {
+    //     AdvogadoSelecionado = Advogado;
+    //     ModalAbertoEdit = true;
+    //     StateHasChanged();
+    // }
+    public void AbrirModal(AdvogadoDTO advogado)
     {
-        AdvogadoSelecionado = Advogado;
+            advogado = new AdvogadoDTO
+            {
+                Id = advogado.Id,
+                Nome = advogado.Nome,
+                Cpf = advogado.Cpf,
+                Oab = advogado.Oab
+            };
         ModalAbertoEdit = true;
         StateHasChanged();
     }
-
     public void FecharModal()
     {
         ModalAbertoEdit = false;

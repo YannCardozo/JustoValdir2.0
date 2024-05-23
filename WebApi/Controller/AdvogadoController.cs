@@ -1,4 +1,5 @@
 ﻿using Commom.models.Advogados;
+using Commom.models.Usuarios;
 using Entities.Entidades;
 using Infra.Configuração;
 using Justo.Entities.Entidades;
@@ -15,9 +16,7 @@ namespace WebApi.Controller
     [ApiController]
     public class AdvogadoController : ControllerBase
     {
-
-        //private readonly UserManager<ApplicationUser> _userManager;
-        //private readonly SignInManager<ApplicationUser> _signInManager;
+        private Advogado AdvogadoAtualizado { get; set; } = new();
         private readonly ContextBase _context;
 
         public AdvogadoController(ContextBase context)
@@ -49,6 +48,39 @@ namespace WebApi.Controller
                 });
             }
         }
+
+        [AllowAnonymous]
+        [HttpPut]
+        [Route("UpdateAdvogado")]
+        public async Task<IActionResult> UpdateAdvogado([FromBody] AdvogadoDTO model)
+        {
+            try
+            {
+                var advogadobusca = await _context.Advogado.FindAsync(model.Id);
+
+                if (advogadobusca == null)
+                {
+                    return NotFound(new { Message = $"Advogado com ID {model.Id} não encontrado." });
+                }
+
+                // Atualizar propriedades do advogado
+                advogadobusca.Cpf = model.Cpf;
+                advogadobusca.Nome = model.Nome;
+                advogadobusca.Oab = model.Oab;
+
+                _context.Advogado.Update(advogadobusca);
+                await _context.SaveChangesAsync();
+
+                return Ok(new { Message = $"Advogado com CPF {model.Cpf} atualizado com sucesso." });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.ToString());
+                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Erro ao atualizar advogado no sistema.", Error = ex.Message });
+            }
+        }
+
+
 
         [Authorize(Policy = "AdminOnly")]
         [Produces("application/json")]

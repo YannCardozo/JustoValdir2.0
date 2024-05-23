@@ -7,5 +7,6 @@ namespace JustoFront.Services.Interface
     {
         Task<List<AdvogadoDTO>> GetAdvogadosAsync();
         Task<HttpResponseMessage> CreateAdvogadoAsync(AdvogadoDTO advogado);
+        Task<HttpResponseMessage> UpdateAdvogadoAsync(AdvogadoDTO model);
     }
 }
