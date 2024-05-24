@@ -82,36 +82,29 @@ namespace WebApi.Controller
 
 
 
-        [Authorize(Policy = "AdminOnly")]
+        //[Authorize(Policy = "AdminOnly")]]
+        [AllowAnonymous]
         [Produces("application/json")]
-        [HttpPost("DeleteAdvogados/{id}")]
-        public async Task<IActionResult> DeleteAdvogados(int id)
+        [HttpDelete("DeleteAdvogados/{id}")]
+        public async Task<IActionResult> DeleteAdvogados([FromRoute] int id)
         {
             try
             {
                 var advogado = await _context.Advogado.FindAsync(id);
                 if (advogado == null)
                 {
-                    return NotFound(new ApiResponse<ErrorResponse>
-                    {
-                        Data = $"Advogado não cadastrado no sistema (verificar ID)."
-                    });
+                    // Melhoria na mensagem de retorno para ser mais específica sobre o erro.
+                    return NotFound($"Advogado não encontrado. o valor do id é: {id}");
                 }
 
                 _context.Advogado.Remove(advogado);
                 await _context.SaveChangesAsync();
-                // Retornar a lista de e-mails dos usuários
-                return Ok(new ApiResponse<string>
-                {
-                    Data = $"Advogado {advogado.Nome} com ID:{id} foi removido com sucesso."
-                });
+
+                return Ok("Advogado removido com sucesso.");
             }
             catch (Exception ex)
             {
-                return NotFound(new ApiResponse<ErrorResponse>
-                {
-                    Data = $"Sem advogados de ID:{id} cadastrados no sistema."
-                });
+                return BadRequest("Erro ao remover o advogado. " + ex.Message);
             }
         }
 
@@ -149,6 +142,13 @@ namespace WebApi.Controller
                 return StatusCode(500, $"Ocorreu um erro ao criar o advogado: {ex.Message}");
             }
         }
+
+
+
+
+
+
+
 
     }
 }

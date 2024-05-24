@@ -42,6 +42,35 @@ public class AdvogadoService : IAdvogadoService
         return new List<AdvogadoDTO>();
     }
 
+    public async Task<List<Advogado>> GetAdvogadosComIdAsync()
+    {
+        var response = await _httpClient.GetAsync("api/Advogado/ListarAdvogados");
+        if (response.IsSuccessStatusCode)
+        {
+            try
+            {
+                var advogados = await response.Content.ReadFromJsonAsync<List<Advogado>>();
+                return advogados ?? new List<Advogado>(); // Retorna uma lista vazia se null for retornado.
+            }
+            catch (JsonException ex)
+            {
+                // Log the JSON error and the response content for troubleshooting.
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.WriteLine($"JSON Exception: {ex.Message}, Content: {errorContent}");
+            }
+        }
+        else
+        {
+            // Log error information when the response is not successful.
+            var errorContent = await response.Content.ReadAsStringAsync();
+            Console.WriteLine($"Error: {response.StatusCode}, Content: {errorContent}");
+        }
+
+        // Return an empty list if the HTTP request fails or JSON parsing fails.
+        return new List<Advogado>();
+    }
+
+
     public async Task<HttpResponseMessage> CreateAdvogadoAsync(AdvogadoDTO model)
     {
         HttpResponseMessage response;
@@ -60,17 +89,28 @@ public class AdvogadoService : IAdvogadoService
         // Aqui você pode chamar outra função para enviar o advogado para a API, por exemplo.
         // Ou você pode implementar o código para criar o advogado diretamente aqui.
 
-
         ModelASerCriada.Nome = model.Nome;
         ModelASerCriada.Cpf = model.Cpf;
         ModelASerCriada.Oab = model.Oab;
 
 
+        Console.WriteLine("ID de model é: " + model.Id + "    id de modelasercriada é: " + ModelASerCriada.Id);
 
         response =  await _httpClient.PostAsJsonAsync("api/Advogado/CreateAdvogado", ModelASerCriada);
+        Console.WriteLine("ID de model é: " + model.Id + "    id de modelasercriada é: " + ModelASerCriada.Id);
 
         return response; // Retornar o advogado criado
     }
+
+   
+    public async Task<HttpResponseMessage> DeleteAdvogadoAsync(int id)
+    {
+        Console.WriteLine("o valor do id é: " + id);
+        return await _httpClient.DeleteAsync($"api/Advogado/DeleteAdvogados/{id}");
+    }
+
+
+
 
     public async Task<HttpResponseMessage> UpdateAdvogadoAsync(AdvogadoDTO model)
     {
@@ -103,18 +143,6 @@ public class AdvogadoService : IAdvogadoService
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
     public List<AdvogadoDTO> ConvertToDTO(List<Advogado> advogados)
     {
         return advogados.ConvertAll(a => new AdvogadoDTO
@@ -125,50 +153,4 @@ public class AdvogadoService : IAdvogadoService
             // Adicionar outros campos conforme necessário
         });
     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    //public async Task<List<Advogado>> GetAdvogadosAsync()
-    //{
-    //    var response = await _httpClient.GetAsync("api/Advogado/ListarAdvogados");
-    //    if (response.IsSuccessStatusCode)
-    //    {
-    //        try
-    //        {
-    //            return await response.Content.ReadFromJsonAsync<List<Advogado>>();
-    //        }
-    //        catch (JsonException ex)
-    //        {
-    //            var errorContent = await response.Content.ReadAsStringAsync();
-    //            Console.WriteLine($"JSON Exception: {ex.Message}, Content: {errorContent}");
-    //        }
-    //    }
-    //    else
-    //    {
-    //        var errorContent = await response.Content.ReadAsStringAsync();
-    //        Console.WriteLine($"Error: {response.StatusCode}, Content: {errorContent}");
-    //    }
-    //    return new List<Advogado>();
-    //}
 }

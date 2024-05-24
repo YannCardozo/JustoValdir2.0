@@ -3,7 +3,9 @@
 @using Justo.Entities.Entidades
 @using JustoFront.Pages.Advogados
 @using JustoFront.Services.Interface
-@inject IAdvogadoService AdvogadoService
+@inject IAdvogadoService AdvogadoService 
+@inject IJSRuntime JsRunTime
+@inject NavigationManager Navigation
 @* @attribute [Authorize(Roles = "Admin")] *@
 
 
@@ -28,7 +30,8 @@
                     <th>Nome</th>
                     <th>OAB</th>
                     <th>Cpf</th>
-                    <th>Acoes</th>
+                    <th>Editar</th>
+                    <th>Remover</th>
                 </tr>
             </thead>
             <tbody>
@@ -68,6 +71,9 @@
                         <td>
                             <button class="btn btn-primary" @onclick="@(e => AbrirModal(Advogado))">Ver Detalhes</button>
                         </td>
+                        <td>
+                            <button class="btn btn-primary" @onclick="@(e => DeletarAdvogado(Advogado))">Remover Advogado</button>
+                        </td>
                     </tr>
                 }
             </tbody>
@@ -87,6 +93,8 @@ else
 
 @code {
     private List<AdvogadoDTO> AdvogadosLista { get; set; } = new();
+    public List<Advogado> AdvogadosListaComId { get; set; } = new();
+
 
     private bool ModalAbertoAdd = false;
     private bool ModalAbertoEdit = false;
@@ -95,17 +103,11 @@ else
     protected override async Task OnInitializedAsync()
     {
         AdvogadosLista = await AdvogadoService.GetAdvogadosAsync();
+        AdvogadosListaComId = await AdvogadoService.GetAdvogadosComIdAsync();
     }
-
-    // public void AbrirModal(AdvogadoDTO Advogado)
-    // {
-    //     AdvogadoSelecionado = Advogado;
-    //     ModalAbertoEdit = true;
-    //     StateHasChanged();
-    // }
     public void AbrirModal(AdvogadoDTO advogado)
     {
-            advogado = new AdvogadoDTO
+        advogado = new AdvogadoDTO
             {
                 Id = advogado.Id,
                 Nome = advogado.Nome,
@@ -114,6 +116,30 @@ else
             };
         ModalAbertoEdit = true;
         StateHasChanged();
+    }
+    public async Task DeletarAdvogado(AdvogadoDTO advogado)
+    {
+        Console.WriteLine(advogado.Cpf + advogado.Nome + advogado.Id);
+        var confirmed = await JsRunTime.InvokeAsync<bool>("confirm", "Deseja mesmo remover esse advogado?");
+        if (confirmed)
+        {
+            // O usuário clicou em OK, coloque o código de remoção aqui
+            // Por exemplo, chamar um serviço para remover o advogado do banco de dados
+            var deletaadvogado = await AdvogadoService.DeleteAdvogadoAsync(advogado.Id); 
+            if(deletaadvogado.IsSuccessStatusCode)
+            {
+                StateHasChanged();
+                Navigation.NavigateTo("/");
+                Navigation.NavigateTo("/Advogados/index");
+            }
+            await JsRunTime.InvokeVoidAsync("alert", deletaadvogado);
+
+        }
+        else
+        {
+            await JsRunTime.InvokeVoidAsync("alert", "Remoção cancelada.");
+            StateHasChanged();
+        }
     }
     public void FecharModal()
     {
