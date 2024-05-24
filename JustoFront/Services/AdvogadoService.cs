@@ -73,36 +73,39 @@ public class AdvogadoService : IAdvogadoService
 
     public async Task<HttpResponseMessage> CreateAdvogadoAsync(AdvogadoDTO model)
     {
-        HttpResponseMessage response;
         var ListaAdvogados = await GetAdvogadosAsync();
 
-        // Verifica se o advogado já existe na lista obtida da API
-        if (ListaAdvogados != null && ListaAdvogados.Any(advogado => advogado.Cpf == model.Cpf))
+        if (ListaAdvogados != null)
         {
-            // Se o advogado já existe, você pode lidar com isso aqui.
-            // Por exemplo, retornar uma mensagem de erro ou fazer outra coisa.
-            Console.WriteLine("Advogado já existe.");
-            return null; // Ou lance uma exceção ou faça outro tratamento, dependendo do seu caso.
+            if (ListaAdvogados.Any(advogado => advogado.Cpf == model.Cpf))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent($"Advogado com CPF {model.Cpf} já está cadastrado no sistema.")
+                };
+            }
+            else if (ListaAdvogados.Any(advogado => advogado.Oab == model.Oab))
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    Content = new StringContent($"Advogado com OAB {model.Oab} já está cadastrado no sistema.")
+                };
+            }
         }
 
-        // Se o advogado não existe, você pode prosseguir com a lógica para criar o advogado.
-        // Aqui você pode chamar outra função para enviar o advogado para a API, por exemplo.
-        // Ou você pode implementar o código para criar o advogado diretamente aqui.
+        var ModelASerCriada = new AdvogadoDTO
+        {
+            Nome = model.Nome,
+            Cpf = model.Cpf,
+            Oab = model.Oab
+        };
 
-        ModelASerCriada.Nome = model.Nome;
-        ModelASerCriada.Cpf = model.Cpf;
-        ModelASerCriada.Oab = model.Oab;
+        var response = await _httpClient.PostAsJsonAsync("api/Advogado/CreateAdvogado", ModelASerCriada);
 
-
-        Console.WriteLine("ID de model é: " + model.Id + "    id de modelasercriada é: " + ModelASerCriada.Id);
-
-        response =  await _httpClient.PostAsJsonAsync("api/Advogado/CreateAdvogado", ModelASerCriada);
-        Console.WriteLine("ID de model é: " + model.Id + "    id de modelasercriada é: " + ModelASerCriada.Id);
-
-        return response; // Retornar o advogado criado
+        return response;
     }
 
-   
+
     public async Task<HttpResponseMessage> DeleteAdvogadoAsync(int id)
     {
         Console.WriteLine("o valor do id é: " + id);
@@ -152,5 +155,24 @@ public class AdvogadoService : IAdvogadoService
             Cpf = a.Cpf
             // Adicionar outros campos conforme necessário
         });
+    }
+
+    public async Task<string> VerificarAdvogadoAsync(AdvogadoDTO model)
+    {
+        var ListaAdvogados = await GetAdvogadosAsync();
+
+        if (ListaAdvogados != null)
+        {
+            if (ListaAdvogados.Any(advogado => advogado.Cpf == model.Cpf))
+            {
+                return $"Advogado com CPF {model.Cpf} já está cadastrado no sistema.";
+            }
+            else if (ListaAdvogados.Any(advogado => advogado.Oab == model.Oab))
+            {
+                return $"Advogado com OAB {model.Oab} já está cadastrado no sistema.";
+            }
+        }
+
+        return null; // Indica que o advogado pode ser criado
     }
 }

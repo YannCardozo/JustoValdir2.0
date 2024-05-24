@@ -52,45 +52,61 @@
     </div>
 }
 @code {
-
     private bool MostraComponenteAdd = false;
+
     [Parameter]
     public bool ModalVisivel { get; set; }
 
     [Parameter]
     public EventCallback<bool> OnClose { get; set; }
 
-    public AdvogadoDTO AdvogadoModal { get; set; } = new();
+    public AdvogadoDTO AdvogadoModal { get; set; } = new AdvogadoDTO();
 
     private void CloseModal()
     {
         ModalVisivel = false;
         OnClose.InvokeAsync(ModalVisivel);
-    } 
-
+    }
 
     private async Task SalvarModal()
     {
-        MostraComponenteAdd = true;
-
         try
         {
-            var mensagemsucesso = "Advogado criado com sucesso.";
-            var response = await AdvogadoService.CreateAdvogadoAsync(AdvogadoModal);
-            await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
-            MostraComponenteAdd = false;
-            CloseModal();
-            Navigation.NavigateTo("/");
-            Navigation.NavigateTo("/Advogados/index");
+            if (AdvogadoService == null)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Erro: Serviço de advogado não está disponível.");
+                return;
+            }
 
+            var verificaadvogado = await AdvogadoService.VerificarAdvogadoAsync(AdvogadoModal);
+            if(verificaadvogado == null)
+            {
+                var response = await AdvogadoService.CreateAdvogadoAsync(AdvogadoModal);
+                if (response.IsSuccessStatusCode)
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", "Advogado criado com sucesso!");
+                    MostraComponenteAdd = false;
+                    CloseModal();
+                    StateHasChanged();
+                    Navigation.NavigateTo("/");
+                    Navigation.NavigateTo("/Advogados/index");
+                }
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", verificaadvogado);
+                MostraComponenteAdd = false;
+                CloseModal();
+                AdvogadoModal = new();
+                StateHasChanged();
+            }
         }
         catch (Exception ex)
         {
-            string mensagemErro = "Erro ao criar Advogado.";
-            await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
+            await JSRuntime.InvokeVoidAsync("alert", "Erro: " + ex.Message);
             MostraComponenteAdd = false;
-            Navigation.NavigateTo("/");
-            Navigation.NavigateTo("/Advogados/index");
+            CloseModal();
+            StateHasChanged();
         }
     }
 }

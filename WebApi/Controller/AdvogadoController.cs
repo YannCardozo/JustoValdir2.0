@@ -115,16 +115,21 @@ namespace WebApi.Controller
         {
             try
             {
-                var advogadoExistente = await _context.Advogado.FindAsync(model.Id);
-
-                if (advogadoExistente != null)
+                // Verifica se já existe um advogado com o mesmo CPF
+                var advogadoExistenteCpf = await _context.Advogado.FirstOrDefaultAsync(x => x.Cpf == model.Cpf);
+                if (advogadoExistenteCpf != null)
                 {
-                    return Conflict(new ApiResponse<ErrorResponse>
-                    {
-                        Data = $"Advogado com ID {model.Id} já está cadastrado no sistema."
-                    });
+                    return BadRequest($"Advogado com CPF {model.Cpf} já está cadastrado no sistema.");
                 }
 
+                // Verifica se já existe um advogado com a mesma OAB
+                var advogadoExistenteOab = await _context.Advogado.FirstOrDefaultAsync(x => x.Oab == model.Oab);
+                if (advogadoExistenteOab != null)
+                {
+                    return BadRequest($"Advogado com OAB {model.Oab} já está cadastrado no sistema.");
+                }
+
+                // Cria o advogado se não houver erro
                 var AdvogadoASerCriado = new Advogado
                 {
                     Cpf = model.Cpf,
@@ -142,13 +147,6 @@ namespace WebApi.Controller
                 return StatusCode(500, $"Ocorreu um erro ao criar o advogado: {ex.Message}");
             }
         }
-
-
-
-
-
-
-
 
     }
 }
