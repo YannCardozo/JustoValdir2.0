@@ -11,9 +11,9 @@ using static Commom.models.Validations.AdvogadoValidation;
 
 namespace Commom.models.Advogados
 {
-    public class AdvogadoDTO : Base
-
+    public class AdvogadoDTO
     {
+        public int Id { get; set; }
         [Required(ErrorMessage = "Advogado Precisa de um Nome")]
         public string Nome { get; set; }
         [ValidaOab(ErrorMessage = "O número da OAB deve estar no formato '123456-UF'.")]

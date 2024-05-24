@@ -27,6 +27,7 @@
         <table class="table">
             <thead style="text-align:center;">
                 <tr>
+                    <th>Id</th>
                     <th>Nome</th>
                     <th>OAB</th>
                     <th>Cpf</th>
@@ -35,9 +36,12 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach (var Advogado in AdvogadosLista)
+                @foreach (var Advogado in AdvogadosListaComId)
                 {
                     <tr>
+                        <td>
+                            <span>@Advogado.Id</span>
+                        </td>
                         <td>
                             @if (!string.IsNullOrEmpty(Advogado.Nome))
                             {
@@ -92,8 +96,10 @@ else
 <ModalAdvogadoAdd ModalVisivel="ModalAbertoAdd" OnClose="FecharModal" />
 
 @code {
-    private List<AdvogadoDTO> AdvogadosLista { get; set; } = new();
+    public List<AdvogadoDTO> AdvogadosLista { get; set; } = new();
     public List<Advogado> AdvogadosListaComId { get; set; } = new();
+
+
 
 
     private bool ModalAbertoAdd = false;
@@ -102,12 +108,31 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        AdvogadosLista = await AdvogadoService.GetAdvogadosAsync();
         AdvogadosListaComId = await AdvogadoService.GetAdvogadosComIdAsync();
+        var advogadosComId = await AdvogadoService.GetAdvogadosComIdAsync();
+
+        // Limpa a lista de AdvogadoDTO se necessário (opcional).
+        AdvogadosLista.Clear();
+
+        // Converte cada Advogado para AdvogadoDTO e adiciona à lista de DTOs.
+        foreach (var advogado in advogadosComId)
+        {
+            var advogadoDto = new AdvogadoDTO
+                {
+                    Id = advogado.Id,
+                    Nome = advogado.Nome,
+                    Cpf = advogado.Cpf,
+                    Oab = advogado.Oab
+                };
+
+            AdvogadosLista.Add(advogadoDto);
+        }
+
+
     }
-    public void AbrirModal(AdvogadoDTO advogado)
+    public void AbrirModal(Advogado advogado)
     {
-        advogado = new AdvogadoDTO
+        AdvogadoSelecionado = new AdvogadoDTO
             {
                 Id = advogado.Id,
                 Nome = advogado.Nome,
@@ -117,22 +142,26 @@ else
         ModalAbertoEdit = true;
         StateHasChanged();
     }
-    public async Task DeletarAdvogado(AdvogadoDTO advogado)
+    public async Task DeletarAdvogado(Advogado advogado)
     {
-        Console.WriteLine(advogado.Cpf + advogado.Nome + advogado.Id);
         var confirmed = await JsRunTime.InvokeAsync<bool>("confirm", "Deseja mesmo remover esse advogado?");
         if (confirmed)
         {
             // O usuário clicou em OK, coloque o código de remoção aqui
             // Por exemplo, chamar um serviço para remover o advogado do banco de dados
-            var deletaadvogado = await AdvogadoService.DeleteAdvogadoAsync(advogado.Id); 
+            var deletaadvogado = await AdvogadoService.DeleteAdvogadoAsync(advogado.Id);
             if(deletaadvogado.IsSuccessStatusCode)
             {
+                await JsRunTime.InvokeVoidAsync("alert", $"{advogado.Nome} removido com sucesso");
                 StateHasChanged();
                 Navigation.NavigateTo("/");
                 Navigation.NavigateTo("/Advogados/index");
             }
-            await JsRunTime.InvokeVoidAsync("alert", deletaadvogado);
+            else
+            {
+                await JsRunTime.InvokeVoidAsync("alert", deletaadvogado);
+
+            }
 
         }
         else
