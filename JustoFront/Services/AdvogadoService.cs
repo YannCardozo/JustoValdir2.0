@@ -117,30 +117,31 @@ public class AdvogadoService : IAdvogadoService
 
     public async Task<HttpResponseMessage> UpdateAdvogadoAsync(AdvogadoDTO model)
     {
-        var ListaAdvogados = await GetAdvogadosAsync();
+        var verificamodeldenovo = await VerificarAdvogadoAsync(model, true);
 
-        if (ListaAdvogados != null && ListaAdvogados.Any(advogado => advogado.Cpf == model.Cpf))
+        if (verificamodeldenovo == null)
         {
-            var advogadoExistente = ListaAdvogados.FirstOrDefault(advogado => advogado.Cpf == model.Cpf);
-            if (advogadoExistente != null)
+            var response = await _httpClient.PutAsJsonAsync("api/Advogado/UpdateAdvogado", model);
+            if (response.IsSuccessStatusCode)
             {
-                model.Id = advogadoExistente.Id; // Certifique-se de atribuir o ID existente ao modelo DTO
-                return await _httpClient.PutAsJsonAsync("api/Advogado/UpdateAdvogado", model);
+                return response;  // Retorna a resposta de sucesso
+            }
+            else
+            {
+                return new HttpResponseMessage(HttpStatusCode.BadRequest)
+                {
+                    ReasonPhrase = $"Erro ao atualizar advogado: {response.ReasonPhrase}"
+                };
             }
         }
         else
         {
-            Console.WriteLine($"Advogado {model.Cpf} não localizado.");
-            return new HttpResponseMessage(HttpStatusCode.NotFound)
+            Console.WriteLine($"Verificar os dados do Advogado: {model.Cpf} / {model.Oab} / {model.Nome}");
+            return new HttpResponseMessage(HttpStatusCode.BadRequest)
             {
-                ReasonPhrase = $"Advogado com CPF {model.Cpf} não localizado."
+                ReasonPhrase = verificamodeldenovo
             };
         }
-
-        return new HttpResponseMessage(HttpStatusCode.BadRequest)
-        {
-            ReasonPhrase = "Erro ao atualizar advogado."
-        };
     }
 
 
@@ -156,23 +157,26 @@ public class AdvogadoService : IAdvogadoService
             // Adicionar outros campos conforme necessário
         });
     }
-
-    public async Task<string> VerificarAdvogadoAsync(AdvogadoDTO model)
+    public async Task<string> VerificarAdvogadoAsync(AdvogadoDTO model, bool? isUpdate)
     {
-        var ListaAdvogados = await GetAdvogadosAsync();
+        var mensagensErros = "";
+        var listaAdvogados = await GetAdvogadosComIdAsync();
 
-        if (ListaAdvogados != null)
+        foreach (var advogado in listaAdvogados)
         {
-            if (ListaAdvogados.Any(advogado => advogado.Cpf == model.Cpf))
+            if (advogado.Id != model.Id)  // Adiciona esta verificação para ignorar o próprio registro
             {
-                return $"Advogado com CPF {model.Cpf} já está cadastrado no sistema.";
-            }
-            else if (ListaAdvogados.Any(advogado => advogado.Oab == model.Oab))
-            {
-                return $"Advogado com OAB {model.Oab} já está cadastrado no sistema.";
+                if (advogado.Cpf == model.Cpf)
+                {
+                    mensagensErros += $"Advogado com CPF {model.Cpf} já está cadastrado no sistema.\n";
+                }
+                if (advogado.Oab == model.Oab)
+                {
+                    mensagensErros += $"Advogado com OAB {model.Oab} já está cadastrado no sistema.\n";
+                }
             }
         }
 
-        return null; // Indica que o advogado pode ser criado
+        return string.IsNullOrEmpty(mensagensErros) ? null : mensagensErros;
     }
 }

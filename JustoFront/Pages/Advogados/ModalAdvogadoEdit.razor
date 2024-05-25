@@ -71,36 +71,46 @@
     private async Task SalvarModal()
     {
         MostraComponenteEdit = true;
-
-        try
-        {
-            var mensagemsucesso = "Advogado alterado com sucesso.";
-            var response = await AdvogadoService.UpdateAdvogadoAsync(AdvogadoModal);
-
-            if (response != null && response.IsSuccessStatusCode)
+        //var verificaAdvogadoAEditar = await AdvogadoService.VerificarAdvogadoAsync(AdvogadoModal, true);
+        // if(verificaAdvogadoAEditar == null)
+        // {
+            try
             {
-                await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
+                var mensagemsucesso = "Advogado alterado com sucesso.";
+                var response = await AdvogadoService.UpdateAdvogadoAsync(AdvogadoModal);
+
+                if (response != null && response.IsSuccessStatusCode)
+                {
+                    await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
+                }
+                else
+                {
+                    string mensagemErro = response != null
+                        ? $"Erro ao alterar Advogado: {response.ReasonPhrase}"
+                        : "Erro ao alterar Advogado: Nenhuma resposta recebida.";
+                    await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
+                }
+
+                MostraComponenteEdit = false;
+                CloseModal();
+                Navigation.NavigateTo("/advogados/index", true);
             }
-            else
+            catch (Exception ex)
             {
-                string mensagemErro = response != null
-                    ? $"Erro ao alterar Advogado: {response.ReasonPhrase}"
-                    : "Erro ao alterar Advogado: Nenhuma resposta recebida.";
+                string mensagemErro = "Erro ao alterar Advogado.";
                 await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
+                MostraComponenteEdit = false;
+                CloseModal();
+                Navigation.NavigateTo("/advogados/index", true);
             }
 
-            MostraComponenteEdit = false;
-            CloseModal();
-            Navigation.NavigateTo("/advogados/index", true);
-        }
-        catch (Exception ex)
-        {
-            string mensagemErro = "Erro ao alterar Advogado.";
-            await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
-            MostraComponenteEdit = false;
-            CloseModal();
-            Navigation.NavigateTo("/advogados/index", true);
-        }
     }
+        // else
+        // {
+        //     await JSRuntime.InvokeVoidAsync("alert", verificaAdvogadoAEditar);
+        //     MostraComponenteEdit = false;
+        //     CloseModal();
+        // }
 
 }
+

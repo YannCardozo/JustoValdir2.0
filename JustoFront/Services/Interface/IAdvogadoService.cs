@@ -10,7 +10,7 @@ namespace JustoFront.Services.Interface
         Task<HttpResponseMessage> CreateAdvogadoAsync(AdvogadoDTO advogado);
         Task<HttpResponseMessage> UpdateAdvogadoAsync(AdvogadoDTO model);
         Task<HttpResponseMessage> DeleteAdvogadoAsync(int id);
-        Task<string> VerificarAdvogadoAsync(AdvogadoDTO model);
+        Task<string> VerificarAdvogadoAsync(AdvogadoDTO model, bool? isUpdate);
 
     }
 }

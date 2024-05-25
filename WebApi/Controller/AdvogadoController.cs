@@ -9,6 +9,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using WebApi.Controller.MethodsCommom;
 using WebApi.Models;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace WebApi.Controller
 {
@@ -56,27 +57,26 @@ namespace WebApi.Controller
         {
             try
             {
-                var advogadobusca = await _context.Advogado.FindAsync(model.Id);
-
-                if (advogadobusca == null)
+                var advogado = await _context.Advogado.FirstOrDefaultAsync(x => x.Id == model.Id);
+                if(advogado != null)
                 {
-                    return NotFound(new { Message = $"Advogado com ID {model.Id} não encontrado." });
+                    advogado.Cpf = model.Cpf;
+                    advogado.Nome = model.Nome;
+                    advogado.Oab = model.Oab;
+                    _context.Advogado.Update(advogado);
+                    await _context.SaveChangesAsync();
+
+                    return Ok($"Advogado com CPF {model.Cpf} atualizado com sucesso.");
                 }
-
-                // Atualizar propriedades do advogado
-                advogadobusca.Cpf = model.Cpf;
-                advogadobusca.Nome = model.Nome;
-                advogadobusca.Oab = model.Oab;
-
-                _context.Advogado.Update(advogadobusca);
-                await _context.SaveChangesAsync();
-
-                return Ok(new { Message = $"Advogado com CPF {model.Cpf} atualizado com sucesso." });
+                else
+                {
+                    return NotFound($"Advogado não encontrado para atualizar dados: {model.Cpf} / {model.Oab} / {model.Nome}");
+                }
             }
             catch (Exception ex)
             {
                 Console.WriteLine(ex.ToString());
-                return StatusCode(StatusCodes.Status500InternalServerError, new { Message = "Erro ao atualizar advogado no sistema.", Error = ex.Message });
+                return BadRequest("Erro ao atualizar advogado no sistema: " + ex.Message);
             }
         }
 

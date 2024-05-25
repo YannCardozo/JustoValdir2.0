@@ -78,7 +78,7 @@
                 return;
             }
 
-            var verificaadvogado = await AdvogadoService.VerificarAdvogadoAsync(AdvogadoModal);
+            var verificaadvogado = await AdvogadoService.VerificarAdvogadoAsync(AdvogadoModal,false);
             if(verificaadvogado == null)
             {
                 var response = await AdvogadoService.CreateAdvogadoAsync(AdvogadoModal);
