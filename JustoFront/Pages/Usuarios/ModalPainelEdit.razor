@@ -76,6 +76,7 @@
     private string passwordInputType => showPassword ? "text" : "password";
     private string passwordIcon => showPassword ? "-slash" : "";
     private bool MostraComponenteEdit = false;
+    public UsuarioComRole DadosAntigos = new();
 
     [Parameter]
     public bool ModalVisivel { get; set; }
@@ -95,6 +96,7 @@
     protected override async Task OnInitializedAsync()
     {
         Roles = await UsuarioService.GetRolesAsync();
+        DadosAntigos = UsuarioModal;
     }
 
     private void TogglePasswordVisibility()
@@ -107,7 +109,7 @@
         MostraComponenteEdit = true;
         try
         {
-            var result = await UsuarioService.UpdateUserAsync(UsuarioModal);
+            var result = await UsuarioService.UpdateUserAsync(UsuarioModal, DadosAntigos);
             if (result.IsSuccessStatusCode)  // Verifica se a resposta foi bem-sucedida
             {
                 await JSRuntime.InvokeVoidAsync("alert", "Usuário alterado com sucesso.");
