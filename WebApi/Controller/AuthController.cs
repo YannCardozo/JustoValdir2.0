@@ -168,12 +168,11 @@ namespace WebApi.Controller
         [Route("register")]
         public async Task<IActionResult> Register([FromBody] RegisterModel model)
         {
-            var userExists = await _userManager.FindByNameAsync(model.Username!);
+            var userExists = await _userManager.FindByEmailAsync(model.Email!);
+
             if(userExists != null)
             {
-                return StatusCode(StatusCodes.Status500InternalServerError,
-                    new ApiResponse<ErrorResponse> 
-                    { Data = new ErrorResponse { ErrorMessage = "Usuário já cadastrado no sistema." }});
+                return BadRequest("Usuário já cadastrado no sistema.");
             }
 
             ApplicationUser user = new()

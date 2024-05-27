@@ -196,4 +196,38 @@ public class UsuariosController : ControllerBase
         }
     }
 
+    [AllowAnonymous]
+    [HttpDelete]
+    [Route("DeleteUsuario/{cpf}")]
+    public async Task<IActionResult> DeleteUsuario(string cpf)  // Usando string pois IDs do Identity geralmente são strings
+    {
+        try
+        {
+            var users = _userManager.Users.ToList();
+
+            var user = users.FirstOrDefault(u => u.CPF == cpf);
+            if (user == null)
+            {
+                return NotFound($"Usuário com CPF {cpf} não encontrado.");
+            }
+
+            // Deleta o usuário
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok($"Usuário com CPF {cpf} foi deletado com sucesso.");
+            }
+            else
+            {
+                return BadRequest($"Erro ao deletar usuário: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+            }
+        }
+        catch (Exception ex)
+        {
+            // Retorna o erro no formato adequado
+            return StatusCode(500, $"Erro interno ao deletar o usuário: {ex.Message}");
+        }
+    }
+
+
 }

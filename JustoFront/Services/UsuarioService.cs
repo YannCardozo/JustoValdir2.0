@@ -1,6 +1,8 @@
 ﻿using Commom.models.Usuarios;
 using Entities.Entidades;
 using Justo.Entities.Entidades;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.JSInterop;
 using System.Diagnostics;
 using System.Net;
 using System.Net.Http.Json;
@@ -14,6 +16,8 @@ namespace JustoFront.Services
         Task<List<UsuarioComRole>> GetUsuariosAsync();
         Task<List<string>> GetRolesAsync();
         Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuario);
+        Task<HttpResponseMessage> DeleteUserAsync(string id);
+        Task<ApplicationUser> GetUsuarioByCpfAsync(string cpf);
     }
 
     public class UsuarioService : IUsuarioService
@@ -25,7 +29,7 @@ namespace JustoFront.Services
             _httpClient = httpClient;
         }
 
-
+        IJSRuntime JSRuntime;
         public async Task<HttpResponseMessage> CreateUsuarioAsync(UsuarioComRoleSenha user)
         {
             HttpResponseMessage response;
@@ -39,6 +43,7 @@ namespace JustoFront.Services
                 {
                     // Você pode logar a resposta de erro ou tratar de outra forma.
                     Console.WriteLine("Erro ao registrar usuário: " + response.StatusCode);
+                    await JSRuntime.InvokeVoidAsync("alert", response.Content.ReadAsStringAsync());
                 }
 
                 // Retorna a resposta independente do status ser sucesso ou não.
@@ -98,12 +103,87 @@ namespace JustoFront.Services
             }
             return null; // Retorna null em caso de falha
         }
+        public async Task<HttpResponseMessage> DeleteUserAsync(string cpf)
+        {
+            // Constrói corretamente o URI com o ID
+            var url = $"api/Usuarios/DeleteUsuario/{cpf}";
+
+            // Faz a chamada usando HttpClient.DeleteAsync, que é apropriado para requisições DELETE
+            var response = await _httpClient.DeleteAsync(url);
+            return response;
+        }
 
         public async Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuario)
         {
-            var response = await _httpClient.PutAsJsonAsync("api/Usuarios/UpdateUser", usuario);
-            return response;
+            var users = await GetUsuariosAsync();
+            var userWithCpf = users.FirstOrDefault(u => u.CPF == usuario.CPF);
+
+            // Verifica se o usuário foi encontrado antes de continuar
+            if (userWithCpf == null)
+            {
+                return new HttpResponseMessage(HttpStatusCode.NotFound)
+                {
+                    Content = new StringContent($"Nenhum usuário encontrado com o CPF: {usuario.CPF}")
+                };
+            }
+            // Implemente a lógica para verificar se os dados são iguais ou se precisam ser atualizados
+            if ((usuario.CPF != userWithCpf.CPF) ||
+                (usuario.UserName != userWithCpf.UserName) ||
+                (usuario.Email != userWithCpf.Email))
+            {
+                // Prossiga com a atualização
+                return await _httpClient.PutAsJsonAsync("api/Usuarios/UpdateUser/", usuario);
+            }
+            return await _httpClient.PutAsJsonAsync("api/Usuarios/UpdateUser/", usuario);
+
         }
+        public async Task<ApplicationUser> GetUsuarioByCpfAsync(string cpf)
+        {
+            if (string.IsNullOrWhiteSpace(cpf))
+                throw new ArgumentException("CPF não pode ser vazio ou nulo.");
+
+            // Define a URL do endpoint que retorna a lista de usuários
+            var url = "api/Usuarios/GetUsuarios";
+
+            try
+            {
+                // Faz a chamada para a API que retorna todos os usuários
+                var response = await _httpClient.GetAsync(url);
+
+                if (response.IsSuccessStatusCode)
+                {
+                    // Deserializa a resposta em uma lista de usuários
+                    var users = await response.Content.ReadFromJsonAsync<List<ApplicationUser>>();
+
+                    Console.WriteLine(users.FirstOrDefault(u => u.CPF == cpf));
+                    Console.WriteLine(cpf);
+                    if (users != null)
+                    {
+                        // Procura na lista o usuário com o CPF especificado
+                        return users.FirstOrDefault(u => u.CPF == cpf);
+                    }
+                }
+                else
+                {
+                    // Tratamento de erro, se a API retornar um status de erro
+                    var error = await response.Content.ReadAsStringAsync();
+                    throw new ApplicationException($"Erro ao buscar usuários: {error}");
+                }
+            }
+            catch (HttpRequestException ex)
+            {
+                // Tratamento de erro de requisição
+                throw new ApplicationException($"Erro de conexão ao servidor: {ex.Message}");
+            }
+            catch (JsonException ex)
+            {
+                // Erro na deserialização do JSON
+                throw new ApplicationException($"Erro ao deserializar a lista de usuários: {ex.Message}");
+            }
+
+            return null;
+        }
+
     }
 
 }

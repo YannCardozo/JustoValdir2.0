@@ -4,6 +4,8 @@
 @using JustoFront.Services
 @using Justo.Entities
 @inject IUsuarioService UsuarioService
+@inject NavigationManager Navigation
+@inject IJSRuntime JsRuntime
 
 <h3>Painel de Usuários</h3>
 
@@ -23,11 +25,12 @@ else
     <table class="table">
         <thead style="text-align:center;">
             <tr>
-                <th>Nome</th>
+                <th>Usuário</th>
                 <th>Email</th>
                 <th>CPF</th>
                 <th>Perfil</th>
-                <th>Ações</th>
+                <th>Detalhes</th>
+                <th>Remover</th>
             </tr>
         </thead>
         <tbody>
@@ -77,6 +80,9 @@ else
                     <td>
                         <button class="btn btn-primary" @onclick="@(e => AbrirModal(usuario))">Ver Detalhes</button>
                     </td>
+                    <td>
+                        <button class="btn btn-primary" @onclick="@(e => RemoverUsuario(usuario))">Remover</button>
+                    </td>
                 </tr>
             }
         </tbody>
@@ -116,5 +122,40 @@ else
     {
         ModalAbertoAdd = true;
         StateHasChanged();
+    }
+    public async Task RemoverUsuario(UsuarioComRole usuario)
+    {
+        var confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Deseja mesmo remover este usuário?");
+        if (confirmed)
+        {
+            // Primeiro, localize o ApplicationUser correspondente pelo CPF
+            var usuarioParaRemover = await UsuarioService.GetUsuarioByCpfAsync(usuario.CPF);
+            if (usuarioParaRemover != null)
+            {
+                // Procede com a remoção usando o ID do ApplicationUser encontrado
+                var resultadoRemocao = await UsuarioService.DeleteUserAsync(usuarioParaRemover.CPF);
+                //erro esta AQUI, PRECISA VERIFICAR PQ N ESTA VINDO SUCCESS
+                if (resultadoRemocao.IsSuccessStatusCode)
+                {
+                    await JsRuntime.InvokeVoidAsync("alert", $"{usuarioParaRemover.UserName} removido com sucesso");
+                    StateHasChanged();
+                    Navigation.NavigateTo("/");
+                    Navigation.NavigateTo("/Usuarios/index");
+                }
+                else
+                {
+                    await JsRuntime.InvokeVoidAsync("alert", $"Falha ao remover o usuário: {usuarioParaRemover.UserName}.");
+                }
+            }
+            else
+            {
+                await JsRuntime.InvokeVoidAsync("alert", $"usuário: {usuarioParaRemover.UserName} não encontrado.");
+            }
+        }
+        else
+        {
+            await JsRuntime.InvokeVoidAsync("alert", "Remoção de usuário cancelado.");
+            StateHasChanged();
+        }
     }
 }

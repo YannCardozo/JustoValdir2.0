@@ -105,26 +105,31 @@
     private async Task SalvarModal()
     {
         MostraComponenteEdit = true;
-
         try
         {
-            var mensagemsucesso = "Usuário alterado com sucesso.";
-            var response = await UsuarioService.UpdateUserAsync(UsuarioModal);
-            await JSRuntime.InvokeVoidAsync("alert", mensagemsucesso);
-            MostraComponenteEdit = false;
-            CloseModal();
-            Navigation.NavigateTo("/");
-            Navigation.NavigateTo("/Usuarios/index");
-
+            var result = await UsuarioService.UpdateUserAsync(UsuarioModal);
+            if (result.IsSuccessStatusCode)  // Verifica se a resposta foi bem-sucedida
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Usuário alterado com sucesso.");
+                Navigation.NavigateTo("/Usuarios/index");
+            }
+            else
+            {
+                // Lê a mensagem de erro do conteúdo da resposta
+                var errorMessage = await result.Content.ReadAsStringAsync();
+                await JSRuntime.InvokeVoidAsync("alert", $"Erro ao alterar Usuário: {errorMessage}");
+                Navigation.NavigateTo("/Usuarios/index");
+            }
         }
         catch (Exception ex)
         {
-            string mensagemErro = "Erro ao alterar usuário.";
-            await JSRuntime.InvokeVoidAsync("alert", mensagemErro);
+            await JSRuntime.InvokeVoidAsync("alert", $"Erro ao alterar usuário: {ex.Message}");
+            Navigation.NavigateTo("/Usuarios/index");
+        }
+        finally
+        {
             MostraComponenteEdit = false;
             CloseModal();
-            Navigation.NavigateTo("/");
-            Navigation.NavigateTo("/Usuarios/index");
         }
     }
 }

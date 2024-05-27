@@ -12,8 +12,10 @@ namespace Commom.models.Usuarios
     {
         private const string PasswordAndUsernamePattern = @"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W]).+$";
 
+        private const string UsernamePattern = @"^[a-zA-Z0-9]+$";
+
         [Required(ErrorMessage = "O nome de usuário é obrigatório.")]
-        [RegularExpression(PasswordAndUsernamePattern, ErrorMessage = "O nome de usuário deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.")]
+        [RegularExpression(UsernamePattern, ErrorMessage = "O nome de usuário deve conter apenas letras ( maiúsculas e minúsculas ) e números.")]
         public string UserName { get; set; }
 
         [Required(ErrorMessage = "O email é obrigatório.")]
