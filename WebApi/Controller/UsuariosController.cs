@@ -30,131 +30,101 @@ public class UsuariosController : ControllerBase
 
     [AllowAnonymous]
     [HttpPut]
-    [Route("UpdateUser")]
-    public async Task<IActionResult> UpdateUser([FromBody] UsuarioComRole model)
+    [Route("UpdateUsuario")]
+    public async Task<IActionResult> UpdateUsuario(UsuarioComRole usuarioAtualizado)
     {
-        //refazer a controller do zero.
+        try
+        {
+            // Busca o usuário no banco de dados
+            var usuario = await _userManager.FindByIdAsync(usuarioAtualizado.Id);
+            if (usuario == null)
+            {
+                return NotFound("Usuário não encontrado");
+            }
 
-        //se atentar a classe usuariocomrole e applicationuser.
+            // Verificação de conflitos de UserName
+            if (usuario.UserName != usuarioAtualizado.UserName)
+            {
+                var userNameExistente = await _userManager.FindByNameAsync(usuarioAtualizado.UserName);
+                if (userNameExistente != null)
+                {
+                    return Conflict($"O nome de usuário '{usuarioAtualizado.UserName}' já está em uso.");
+                }
+                usuario.UserName = usuarioAtualizado.UserName;
+            }
+            else
+            {
+                usuario.UserName = usuarioAtualizado.UserName;
+            }
 
+            // Verificação de conflitos de Email
+            if (usuario.Email != usuarioAtualizado.Email)
+            {
+                var emailExistente = await _userManager.FindByEmailAsync(usuarioAtualizado.Email);
+                if (emailExistente != null)
+                {
+                    return Conflict($"O email '{usuarioAtualizado.Email}' já está em uso.");
+                }
+                usuario.Email = usuarioAtualizado.Email;
+            }
+            else
+            {
+                usuario.Email = usuarioAtualizado.Email;
+            }
 
+            // Atualização do CPF
+            if (usuario.CPF != usuarioAtualizado.CPF)
+            {
+                // Supondo que você tenha uma verificação adicional para CPF único
+                var cpfExistente = _userManager.Users.FirstOrDefault(u => u.CPF == usuarioAtualizado.CPF && u.Id != usuario.Id);
+                if (cpfExistente != null)
+                {
+                    return Conflict($"O CPF '{usuarioAtualizado.CPF}' já está em uso.");
+                }
+                usuario.CPF = usuarioAtualizado.CPF;
+            }
+            else
+            {
+                usuario.CPF = usuarioAtualizado.CPF;
+            }
 
+            // aqui atualiza as informações do usuario, iremos para o role agora.
+            var resultado = await _userManager.UpdateAsync(usuario);
+            if (!resultado.Succeeded)
+            {
+                return BadRequest("Erro ao atualizar usuário: " + string.Join(", ", resultado.Errors.Select(e => e.Description)));
+            }
 
+            // Atualiza as roles do usuário
+            var rolesAtuais = await _userManager.GetRolesAsync(usuario);
+            var rolesParaAdicionar = usuarioAtualizado.Roles.Except(rolesAtuais).ToList();
+            var rolesParaRemover = rolesAtuais.Except(usuarioAtualizado.Roles).ToList();
 
+            if (rolesParaAdicionar.Any())
+            {
+                var resultadoAdicionar = await _userManager.AddToRolesAsync(usuario, rolesParaAdicionar);
+                if (!resultadoAdicionar.Succeeded)
+                {
+                    return BadRequest("Erro ao adicionar roles: " + string.Join(", ", resultadoAdicionar.Errors.Select(e => e.Description)));
+                }
+            }
 
+            if (rolesParaRemover.Any())
+            {
+                var resultadoRemover = await _userManager.RemoveFromRolesAsync(usuario, rolesParaRemover);
+                if (!resultadoRemover.Succeeded)
+                {
+                    return BadRequest("Erro ao remover roles: " + string.Join(", ", resultadoRemover.Errors.Select(e => e.Description)));
+                }
+            }
 
-
-
-
-
-
-
-
-
-
-        //try
-        //{
-        //    var roles = _roleManager.Roles.Select(r => r.Name).ToList();
-
-        //    if (string.IsNullOrEmpty(model.RoleSelecionado) || !roles.Contains(model.RoleSelecionado))
-        //    {
-        //        return BadRequest("Preencha o Perfil do usuário para continuar.");
-        //    }
-
-        //    // Verificar se o email já está em uso por outro usuário
-        //    var userWithEmail = await _userManager.Users
-        //        .Where(u => u.Email == model.Email && u.UserName != model.UserName)
-        //        .SingleOrDefaultAsync();
-
-        //    if (userWithEmail != null)
-        //    {
-        //        return BadRequest($"O email '{model.Email}' já está em uso.");
-        //    }
-
-        //    // Verificar se o username já está em uso por outro usuário
-        //    var userWithUsername = await _userManager.Users
-        //        .Where(u => u.UserName == model.UserName && u.UserName != model.UserName)
-        //        .SingleOrDefaultAsync();
-
-        //    if (userWithUsername != null)
-        //    {
-        //        return BadRequest($"O nome de usuário '{model.UserName}' já está em uso.");
-        //    }
-
-        //    // Verificar se o CPF já está em uso por outro usuário
-        //    var userWithCpf = await _userManager.Users
-        //        .Where(u => u.CPF == model.CPF && u.UserName != model.UserName)
-        //        .SingleOrDefaultAsync();
-
-        //    if (userWithCpf != null)
-        //    {
-        //        return BadRequest($"O CPF '{model.CPF}' já está em uso.");
-        //    }
-
-        //    // Encontrar o usuário pelo nome de usuário fornecido no model
-        //    var user = await _userManager.FindByNameAsync(model.UserName);
-        //    if (user == null)
-        //    {
-        //        return NotFound($"Usuário com o nome de usuário '{model.UserName}' não encontrado.");
-        //    }
-
-
-        //    if (!string.IsNullOrEmpty(model.Password))
-        //    {
-        //        // Aqui você poderia adicionar validação da senha conforme suas regras de negócio
-        //        var token = await _userManager.GeneratePasswordResetTokenAsync(user);
-        //        var passwordResult = await _userManager.ResetPasswordAsync(user, token, model.Password);
-        //        if (!passwordResult.Succeeded)
-        //        {
-        //            return BadRequest($"Erro ao atualizar a senha: {string.Join(", ", passwordResult.Errors.Select(e => e.Description))}");
-        //        }
-        //    }
-
-
-
-
-        //    // Obter roles atuais do usuário
-        //    var currentRoles = await _userManager.GetRolesAsync(user);
-        //    var newRole = model.RoleSelecionado; // Assume que 'RoleSelecionado' é a nova role do usuário
-
-        //    // Remover roles atuais
-        //    var removeResult = await _userManager.RemoveFromRolesAsync(user, currentRoles);
-        //    if (!removeResult.Succeeded)
-        //    {
-        //        return BadRequest($"Erro ao remover roles atuais do usuário: {string.Join(", ", removeResult.Errors.Select(e => e.Description))}");
-        //    }
-
-        //    // Adicionar nova role
-        //    var addResult = await _userManager.AddToRoleAsync(user, newRole);
-        //    if (!addResult.Succeeded)
-        //    {
-        //        return BadRequest($"Erro ao adicionar nova role ao usuário: {string.Join(", ", addResult.Errors.Select(e => e.Description))}");
-        //    }
-
-        //    // Atualizar propriedades do usuário
-        //    user.UserName = model.UserName;
-        //    user.CPF = model.CPF;
-
-
-        //    if (model.Email.Contains("@")) ;
-        //    {
-        //        user.Email = model.Email;
-        //    }
-
-
-        //    var updateResult = await _userManager.UpdateAsync(user);
-        //    if (!updateResult.Succeeded)
-        //    {
-        //        return BadRequest($"Erro ao atualizar o usuário: {string.Join(", ", updateResult.Errors.Select(e => e.Description))}");
-        //    }
-
-        //    return Ok($"{user.UserName} atualizado com sucesso.");
-        //}
-        //catch (Exception ex)
-        //{
-        //    Console.WriteLine(ex.ToString());
-        //    return BadRequest(ex.ToString());
-        //}
+            return Ok("Usuário atualizado com sucesso");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine(ex.ToString());
+            return BadRequest(ex.ToString());
+        }
     }
 
     [AllowAnonymous]
@@ -177,6 +147,7 @@ public class UsuariosController : ControllerBase
                 var roles = await _userManager.GetRolesAsync(usuario);
                 usuariosComRoles.Add(new UsuarioComRole
                 {
+                    Id = usuario.Id,
                     UserName = usuario.UserName,
                     Email = usuario.Email,
                     CPF = usuario.CPF,

@@ -15,7 +15,7 @@ namespace JustoFront.Services
         Task<HttpResponseMessage> CreateUsuarioAsync(UsuarioComRoleSenha user);
         Task<List<UsuarioComRole>> GetUsuariosAsync();
         Task<List<string>> GetRolesAsync();
-        Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuarionovo, UsuarioComRole usuarioantigo);
+        Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuarionovo);
         //Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuario);
         Task<HttpResponseMessage> DeleteUserAsync(string id);
         Task<ApplicationUser> GetUsuarioByCpfAsync(string cpf);
@@ -115,71 +115,21 @@ namespace JustoFront.Services
             return response;
         }
 
-        public async Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuarionovo, UsuarioComRole usuarioantigo)
+        public async Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuarionovo)
         {
+            var url = "api/Usuarios/UpdateUsuario";
 
-            var users = await GetUsuariosAsync();
-            var userWithCpf = users.FirstOrDefault(u => u.CPF == usuarionovo.CPF);
-            var userWithEmail = users.FirstOrDefault(u => u.Email == usuarionovo.Email);
-            var userWithUserName = users.FirstOrDefault(u => u.UserName == usuarionovo.UserName);
-            string erros = "";
+            var response = await _httpClient.PutAsJsonAsync(url, usuarionovo);
 
-            // se o cpf da model não for localizado no banco, retorna null.
-            if (userWithCpf == null && userWithEmail == null && userWithUserName == null)
+            if(response.IsSuccessStatusCode)
             {
-                //model com dados válidos e não localizados no banco de dados, prossiga para o cadastro na controller.
-                return await _httpClient.PutAsJsonAsync("api/Usuarios/UpdateUser/", usuarionovo);
-
-            }
-            else if (usuarionovo.CPF == usuarioantigo.CPF && usuarionovo.Email == usuarioantigo.Email && usuarioantigo.UserName == usuarionovo.UserName)
-            {
-                return await _httpClient.PutAsJsonAsync("api/Usuarios/UpdateUser/", usuarionovo);
+                return response;
             }
             else
             {
-                if (userWithCpf != null && usuarionovo.CPF != usuarioantigo.CPF)
-                {
-                    erros += $"CPF {usuarionovo.CPF} já cadastrado.\n";
-                }
-                if (userWithEmail != null && usuarionovo.Email != usuarioantigo.Email)
-                {
-                    erros += $"Email {usuarionovo.Email} já está cadastrado no banco, cadastrar um diferente.\n";
-                }
-                if (userWithUserName != null && usuarionovo.UserName != usuarioantigo.UserName)
-                {
-                    erros += $"Usuário {usuarionovo.UserName} já está cadastrado no banco, cadastrar um diferente.\n";
-                }
-
-                return new HttpResponseMessage(HttpStatusCode.BadRequest)
-                {
-                    Content = new StringContent("Erro ao atualizar usuário: \n" + erros)
-                };
+                throw new ApplicationException($"Erro ao atualizar usuário: {usuarionovo.UserName}");
             }
-
-
-
-            //else
-            //{
-            //    if(usuarionovo.Email == usuarioantigo.Email)
-            //    {
-            //        erros += $"Email {usuarionovo.Email} já está cadastrado no banco, cadastrar um diferente.\n";
-            //    }
-            //    if (usuarionovo.UserName == usuarioantigo.UserName)
-            //    {
-            //        erros += $"Úsuário {usuarionovo.UserName} já está cadastrado no banco, cadastrar um diferente.\n";
-            //    }
-            //    if (usuarionovo.CPF == usuarioantigo.CPF)
-            //    {
-            //        erros += $"CPF {usuarionovo.CPF} já está cadastrado no banco, cadastrar um diferente.\n";
-            //    }
-
-            //    return new HttpResponseMessage(HttpStatusCode.NotFound)
-            //    {
-            //        Content = new StringContent("Erro ao atualizar usuário: \n" + erros)
-            //    };
-
-            //}
-
+            
         }
         public async Task<ApplicationUser> GetUsuarioByCpfAsync(string cpf)
         {

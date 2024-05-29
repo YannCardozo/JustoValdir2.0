@@ -109,7 +109,7 @@
         MostraComponenteEdit = true;
         try
         {
-            var result = await UsuarioService.UpdateUserAsync(UsuarioModal, DadosAntigos);
+            var result = await UsuarioService.UpdateUserAsync(UsuarioModal);
             if (result.IsSuccessStatusCode)  // Verifica se a resposta foi bem-sucedida
             {
                 await JSRuntime.InvokeVoidAsync("alert", "Usuário alterado com sucesso.");

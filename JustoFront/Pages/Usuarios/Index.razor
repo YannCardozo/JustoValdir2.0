@@ -25,6 +25,7 @@ else
     <table class="table">
         <thead style="text-align:center;">
             <tr>
+                <th>Id</th>
                 <th>Usuário</th>
                 <th>Email</th>
                 <th>CPF</th>
@@ -37,6 +38,16 @@ else
             @foreach (var usuario in usuarios)
             {
                 <tr>
+                    <td>
+                        @if (usuario.Id != null)
+                        {
+                            <span>@usuario.Id</span>
+                        }
+                        else
+                        {
+                            <span>Usuário sem ID cadastrado.</span>
+                        }
+                    </td>
                     <td>
                         @if (!string.IsNullOrEmpty(usuario.UserName))
                         {
