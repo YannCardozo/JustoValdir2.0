@@ -127,7 +127,7 @@ namespace JustoFront.Services
             }
             else
             {
-                throw new ApplicationException($"Erro ao atualizar usuário: {usuarionovo.UserName}");
+                return response;
             }
             
         }

@@ -48,12 +48,8 @@ public class UsuariosController : ControllerBase
                 var userNameExistente = await _userManager.FindByNameAsync(usuarioAtualizado.UserName);
                 if (userNameExistente != null)
                 {
-                    return Conflict($"O nome de usuário '{usuarioAtualizado.UserName}' já está em uso.");
+                    return BadRequest($"O nome de usuário '{usuarioAtualizado.UserName}' já está em uso.");
                 }
-                usuario.UserName = usuarioAtualizado.UserName;
-            }
-            else
-            {
                 usuario.UserName = usuarioAtualizado.UserName;
             }
 
@@ -63,32 +59,23 @@ public class UsuariosController : ControllerBase
                 var emailExistente = await _userManager.FindByEmailAsync(usuarioAtualizado.Email);
                 if (emailExistente != null)
                 {
-                    return Conflict($"O email '{usuarioAtualizado.Email}' já está em uso.");
+                    return BadRequest($"O email '{usuarioAtualizado.Email}' já está em uso.");
                 }
-                usuario.Email = usuarioAtualizado.Email;
-            }
-            else
-            {
                 usuario.Email = usuarioAtualizado.Email;
             }
 
             // Atualização do CPF
             if (usuario.CPF != usuarioAtualizado.CPF)
             {
-                // Supondo que você tenha uma verificação adicional para CPF único
                 var cpfExistente = _userManager.Users.FirstOrDefault(u => u.CPF == usuarioAtualizado.CPF && u.Id != usuario.Id);
                 if (cpfExistente != null)
                 {
-                    return Conflict($"O CPF '{usuarioAtualizado.CPF}' já está em uso.");
+                    return BadRequest($"O CPF '{usuarioAtualizado.CPF}' já está em uso.");
                 }
                 usuario.CPF = usuarioAtualizado.CPF;
             }
-            else
-            {
-                usuario.CPF = usuarioAtualizado.CPF;
-            }
 
-            // aqui atualiza as informações do usuario, iremos para o role agora.
+            // Atualiza as informações do usuário
             var resultado = await _userManager.UpdateAsync(usuario);
             if (!resultado.Succeeded)
             {
@@ -97,28 +84,27 @@ public class UsuariosController : ControllerBase
 
             // Atualiza as roles do usuário
             var rolesAtuais = await _userManager.GetRolesAsync(usuario);
-            var rolesParaAdicionar = usuarioAtualizado.Roles.Except(rolesAtuais).ToList();
-            var rolesParaRemover = rolesAtuais.Except(usuarioAtualizado.Roles).ToList();
+            var roleSelecionada = usuarioAtualizado.RoleSelecionado;
 
-            if (rolesParaAdicionar.Any())
+            // Verifica se a role selecionada é diferente da atual
+            if (!rolesAtuais.Contains(roleSelecionada))
             {
-                var resultadoAdicionar = await _userManager.AddToRolesAsync(usuario, rolesParaAdicionar);
-                if (!resultadoAdicionar.Succeeded)
-                {
-                    return BadRequest("Erro ao adicionar roles: " + string.Join(", ", resultadoAdicionar.Errors.Select(e => e.Description)));
-                }
-            }
-
-            if (rolesParaRemover.Any())
-            {
-                var resultadoRemover = await _userManager.RemoveFromRolesAsync(usuario, rolesParaRemover);
+                // Remove todas as roles atuais
+                var resultadoRemover = await _userManager.RemoveFromRolesAsync(usuario, rolesAtuais);
                 if (!resultadoRemover.Succeeded)
                 {
                     return BadRequest("Erro ao remover roles: " + string.Join(", ", resultadoRemover.Errors.Select(e => e.Description)));
                 }
+
+                // Adiciona a nova role selecionada
+                var resultadoAdicionar = await _userManager.AddToRoleAsync(usuario, roleSelecionada);
+                if (!resultadoAdicionar.Succeeded)
+                {
+                    return BadRequest("Erro ao adicionar role: " + string.Join(", ", resultadoAdicionar.Errors.Select(e => e.Description)));
+                }
             }
 
-            return Ok("Usuário atualizado com sucesso");
+            return Ok($"Usuário {usuario.UserName} atualizado com sucesso");
         }
         catch (Exception ex)
         {

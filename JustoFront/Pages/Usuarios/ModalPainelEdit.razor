@@ -113,19 +113,24 @@
             if (result.IsSuccessStatusCode)  // Verifica se a resposta foi bem-sucedida
             {
                 await JSRuntime.InvokeVoidAsync("alert", "Usuário alterado com sucesso.");
+                Navigation.NavigateTo("/");
                 Navigation.NavigateTo("/Usuarios/index");
+
             }
             else
             {
                 // Lê a mensagem de erro do conteúdo da resposta
                 var errorMessage = await result.Content.ReadAsStringAsync();
                 await JSRuntime.InvokeVoidAsync("alert", $"Erro ao alterar Usuário: {errorMessage}");
+                Navigation.NavigateTo("/");
                 Navigation.NavigateTo("/Usuarios/index");
+
             }
         }
         catch (Exception ex)
         {
             await JSRuntime.InvokeVoidAsync("alert", $"Erro ao alterar usuário: {ex.Message}");
+            Navigation.NavigateTo("/");
             Navigation.NavigateTo("/Usuarios/index");
         }
         finally
