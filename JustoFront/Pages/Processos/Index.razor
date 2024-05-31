@@ -1,0 +1,50 @@
+﻿@page "/Processos/Index"
+@using Justo.Entities.Entidades
+@using JustoFront.Services
+@using JustoFront.Services.Interface
+@inject IProcessoService ProcessoService
+
+<h3>Processos</h3>
+@if(lstProcessos != null)
+{
+    <table class="table table-hover">
+        <thead>
+            <tr>
+                <th scope="col">CodigoProcesso</th>
+                <th scope="col">Partes do Processo</th>
+                <th scope="col">Motivos</th>
+                <th scope="col">Comarca</th>
+                <th scope="col">OBSPROCESSO</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                @foreach (var teste in lstProcessos)
+                {
+                    <td>@teste.CodPJEC</td>
+                    <td>@teste.PartesProcesso</td>
+                    <td>@teste.MotivosProcesso</td>
+                    <td>@teste.Comarca</td>
+                    <td>@teste.ObsProcesso</td>
+                }
+            </tr>
+        </tbody>
+    </table>
+
+}
+else
+{
+    <h1>Não há processos cadastrados até o momento.</h1>
+}
+
+
+
+
+@code {
+    public List<Processo> lstProcessos { get; set; } = new List<Processo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        lstProcessos = await ProcessoService.GetAllProcessosAsync();
+    }
+}
