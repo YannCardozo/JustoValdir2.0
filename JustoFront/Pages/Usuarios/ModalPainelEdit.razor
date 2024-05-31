@@ -110,6 +110,8 @@
         try
         {
             var result = await UsuarioService.UpdateUserAsync(UsuarioModal);
+            var RetornoApiMensagem = await result.Content.ReadAsStringAsync();
+
             if (result.IsSuccessStatusCode)  // Verifica se a resposta foi bem-sucedida
             {
                 await JSRuntime.InvokeVoidAsync("alert", "Usuário alterado com sucesso.");
@@ -120,8 +122,8 @@
             else
             {
                 // Lê a mensagem de erro do conteúdo da resposta
-                var errorMessage = await result.Content.ReadAsStringAsync();
-                await JSRuntime.InvokeVoidAsync("alert", $"Erro ao alterar Usuário: {errorMessage}");
+
+                await JSRuntime.InvokeVoidAsync("alert", $"Erro ao alterar Usuário: {RetornoApiMensagem}");
                 Navigation.NavigateTo("/");
                 Navigation.NavigateTo("/Usuarios/index");
 

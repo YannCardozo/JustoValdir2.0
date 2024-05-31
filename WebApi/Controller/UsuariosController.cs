@@ -46,7 +46,7 @@ public class UsuariosController : ControllerBase
             if (usuario.UserName != usuarioAtualizado.UserName)
             {
                 var userNameExistente = await _userManager.FindByNameAsync(usuarioAtualizado.UserName);
-                if (userNameExistente != null)
+                if (userNameExistente != null && userNameExistente.Id != usuarioAtualizado.Id)
                 {
                     return BadRequest($"O nome de usuário '{usuarioAtualizado.UserName}' já está em uso.");
                 }
@@ -57,7 +57,7 @@ public class UsuariosController : ControllerBase
             if (usuario.Email != usuarioAtualizado.Email)
             {
                 var emailExistente = await _userManager.FindByEmailAsync(usuarioAtualizado.Email);
-                if (emailExistente != null)
+                if (emailExistente != null && emailExistente.Id != usuarioAtualizado.Email)
                 {
                     return BadRequest($"O email '{usuarioAtualizado.Email}' já está em uso.");
                 }
@@ -68,12 +68,31 @@ public class UsuariosController : ControllerBase
             if (usuario.CPF != usuarioAtualizado.CPF)
             {
                 var cpfExistente = _userManager.Users.FirstOrDefault(u => u.CPF == usuarioAtualizado.CPF && u.Id != usuario.Id);
-                if (cpfExistente != null)
+                if (cpfExistente != null && cpfExistente.Id != usuarioAtualizado.Id)
                 {
                     return BadRequest($"O CPF '{usuarioAtualizado.CPF}' já está em uso.");
                 }
                 usuario.CPF = usuarioAtualizado.CPF;
             }
+
+
+            // Atualiza a senha do usuário se fornecida
+            if (!string.IsNullOrWhiteSpace(usuarioAtualizado.Password))
+            {
+                var token = await _userManager.GeneratePasswordResetTokenAsync(usuario);
+                var passwordChangeResult = await _userManager.ResetPasswordAsync(usuario, token, usuarioAtualizado.Password);
+                if (!passwordChangeResult.Succeeded)
+                {
+                    return BadRequest("Erro ao atualizar a senha: " + string.Join(", ", passwordChangeResult.Errors.Select(e => e.Description)));
+                }
+            }
+
+
+
+
+
+
+
 
             // Atualiza as informações do usuário
             var resultado = await _userManager.UpdateAsync(usuario);

@@ -189,7 +189,7 @@ namespace WebApi.Controller
             }
 
             //atribuindo ao perfil de usuário como DEFAULT ao criar o registro.
-            await _userManager.AddToRoleAsync(user, "Usuário");
+            await _userManager.AddToRoleAsync(user, "Teste");
             return Ok($"Usuário {model.Username} Criado com sucesso");
         }
 
