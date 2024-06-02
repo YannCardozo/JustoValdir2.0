@@ -1,0 +1,46 @@
+﻿@page "/Processos/Detalhes/{ProcessoId:int}"
+@using Justo.Entities.Entidades
+@using JustoFront.Services
+@using JustoFront.Services.Interface
+@inject IProcessoService ProcessoService
+
+<h3>Detalhes do Processo @ProcessoId</h3>
+
+@if (lstProcessosAtualizados != null)
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th scope="col">TituloMovimento</th>
+                <th scope="col">ConteudoAtualizacao</th>
+                <th scope="col">DataMovimentacao</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var atualizacao in lstProcessosAtualizados)
+            {
+                <tr>
+                    <td>@atualizacao.TituloMovimento</td>
+                    <td>@atualizacao.ConteudoAtualizacao</td>
+                    <td>@atualizacao.DataMovimentacao</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>Carregando...</p>
+}
+
+@code {
+    [Parameter]
+    public int ProcessoId { get; set; }
+
+    public List<ProcessosAtualizacao> lstProcessosAtualizados = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        lstProcessosAtualizados = await ProcessoService.GetAllProcessoAtualizadoAsync(ProcessoId);
+    }
+}

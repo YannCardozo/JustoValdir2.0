@@ -1,6 +1,7 @@
 ﻿using Justo.Entities.Entidades;
 using JustoFront.Services.Interface;
 using Microsoft.JSInterop;
+using System.Net.Http.Json;
 using System.Text.Json;
 
 namespace JustoFront.Services
@@ -35,6 +36,21 @@ namespace JustoFront.Services
                 }
             }
             catch (Exception ex)
+            {
+                await _jsRuntime.InvokeVoidAsync("alert", $"Exceção ao obter processos: {ex.Message}");
+                return null;
+            }
+        }
+
+        public async Task<List<ProcessosAtualizacao>> GetAllProcessoAtualizadoAsync(int processoId)
+        {
+            try
+            {
+                var response = await _httpClient.GetAsync($"api/Processo/GetAllProcessosAtualizacao/{processoId}");
+                response.EnsureSuccessStatusCode();
+                return await response.Content.ReadFromJsonAsync<List<ProcessosAtualizacao>>();
+            }
+            catch(Exception ex)
             {
                 await _jsRuntime.InvokeVoidAsync("alert", $"Exceção ao obter processos: {ex.Message}");
                 return null;

@@ -11,23 +11,38 @@
         <thead>
             <tr>
                 <th scope="col">CodigoProcesso</th>
+                <th scope="col">Adv Processo</th>
                 <th scope="col">Partes do Processo</th>
                 <th scope="col">Motivos</th>
+                <th scope="col">Prazo</th>
+                <th scope="col">UltimaMovimentacaoProcessualData</th>
                 <th scope="col">Comarca</th>
                 <th scope="col">OBSPROCESSO</th>
+                <th scope="col">OrgaoJulgador</th>
+                <th scope="col">Prioridade</th>
             </tr>
         </thead>
         <tbody>
-            <tr>
+                @*estabelecer as colunas que deverão vir do banco para mostrar na tela*@
+                @*terminar de fazer os outros metodos das services e actions da controller*@
+                @*verificar como que será o details do processo*@
                 @foreach (var teste in lstProcessos)
                 {
-                    <td>@teste.CodPJEC</td>
-                    <td>@teste.PartesProcesso</td>
-                    <td>@teste.MotivosProcesso</td>
-                    <td>@teste.Comarca</td>
-                    <td>@teste.ObsProcesso</td>
+                    <tr>
+                        <td>
+                            <a href="/Processos/detalhes/@teste.Id">@teste.CodPJEC</a>
+                        </td>
+                        <td>@teste.Nome</td>
+                        <td>@teste.PartesProcesso</td>
+                        <td>@teste.MotivosProcesso</td>
+                        <td>@teste.Prazo</td>
+                        <td>@teste.UltimaMovimentacaoProcessualData</td>
+                        <td>@teste.Comarca</td>
+                        <td>@teste.ObsProcesso</td>
+                        <td>@teste.OrgaoJulgador</td>
+                        <td>@teste.Prioridade</td>
+                    </tr>
                 }
-            </tr>
         </tbody>
     </table>
 
@@ -36,7 +51,21 @@ else
 {
     <h1>Não há processos cadastrados até o momento.</h1>
 }
-
+<style>
+    th
+    {
+        text-align: -webkit-center;
+    }
+    tr
+    {
+        text-align: -webkit-center;
+    }
+    td
+    {
+        text-align: -webkit-center;
+        align-content: center;
+    }
+</style>
 
 
 

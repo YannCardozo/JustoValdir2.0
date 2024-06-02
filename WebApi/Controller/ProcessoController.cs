@@ -66,5 +66,31 @@ namespace WebApi.Controller
                 return BadRequest($"Erro no servidor de processos: {ex.Message}");
             }
         }
+
+        [AllowAnonymous]
+        [Produces("application/json")]
+        [HttpGet("GetAllProcessosAtualizacao/{processoId}")]
+        public async Task<IActionResult> GetAllProcessosAtualizacao(int processoId)
+        {
+            try
+            {
+                var ListaProcessosAtualizada = await _context.ProcessosAtualizacao.Where(u => u.ProcessoId == processoId).ToListAsync();
+                if (ListaProcessosAtualizada == null || !ListaProcessosAtualizada.Any())
+                {
+                    return NotFound("Não foram encontradas atualizações para o processo especificado.");
+                }
+                else
+                {
+                    return Ok(ListaProcessosAtualizada);
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(StatusCodes.Status500InternalServerError, $"Erro no servidor: {ex.Message}");
+            }
+        }
+
+
+
     }
 }

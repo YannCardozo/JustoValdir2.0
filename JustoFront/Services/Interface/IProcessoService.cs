@@ -6,6 +6,8 @@ namespace JustoFront.Services.Interface
     public interface IProcessoService
     {
         Task<List<Processo>> GetAllProcessosAsync();
+        Task<List<ProcessosAtualizacao>> GetAllProcessoAtualizadoAsync(int processoId);
+
         //Task<List<Processo>> GetAdvogadosComIdAsync();
         //Task<HttpResponseMessage> CreateAdvogadoAsync(Processo advogado);
         //Task<HttpResponseMessage> UpdateAdvogadoAsync(Processo model);
