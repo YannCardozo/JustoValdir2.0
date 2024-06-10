@@ -58,8 +58,8 @@ namespace Justo.Entities.Entidades
         [ForeignKey("Advogado")]
         [Column(Order = 1)]
 
-        public int AdvogadoId { get; set; }
-        public Advogado Advogado { get; set; } = new();
+        public int? AdvogadoId { get; set; }
+        public virtual Advogado? Advogado { get; set; } = new();
 
 
         public ICollection<ProcessosCompromissos> ProcessosCompromissos = new List<ProcessosCompromissos>();

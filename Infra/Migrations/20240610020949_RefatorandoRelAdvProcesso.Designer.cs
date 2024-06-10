@@ -4,6 +4,7 @@ using Infra.Configuração;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Migrations
 {
     [DbContext(typeof(ContextBase))]
-    partial class ContextBaseModelSnapshot : ModelSnapshot
+    [Migration("20240610020949_RefatorandoRelAdvProcesso")]
+    partial class RefatorandoRelAdvProcesso
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -438,6 +441,7 @@ namespace Infra.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("AdvogadoId")
+                        .IsRequired()
                         .HasColumnType("int")
                         .HasColumnOrder(1);
 
@@ -734,15 +738,15 @@ namespace Infra.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "0fffabb3-0c23-44e3-a694-a33ff4d70612",
-                            ConcurrencyStamp = "bb06161b-b9dc-421a-a7fc-34670608b31d",
+                            Id = "78713cfd-843c-4c5f-94e8-2aa9c817d721",
+                            ConcurrencyStamp = "62648fd0-2daf-4391-ab12-09b8b1d95637",
                             Name = "Usuário",
                             NormalizedName = "USUÁRIO"
                         },
                         new
                         {
-                            Id = "b0468126-9a47-403a-b312-dbf2545ee421",
-                            ConcurrencyStamp = "ba98b687-d614-4dec-af5c-6bbc6b132707",
+                            Id = "b01aa80a-7466-49a2-be8d-273da1cdb2d9",
+                            ConcurrencyStamp = "6c30c2b2-8a89-4cac-bf78-588d4c5ebdb4",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -893,7 +897,9 @@ namespace Infra.Migrations
                 {
                     b.HasOne("Justo.Entities.Entidades.Advogado", "Advogado")
                         .WithMany()
-                        .HasForeignKey("AdvogadoId");
+                        .HasForeignKey("AdvogadoId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
                     b.Navigation("Advogado");
                 });
