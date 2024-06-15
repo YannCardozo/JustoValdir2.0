@@ -14,6 +14,7 @@ namespace Justo.Entities.Entidades
     public class ProcessosAtualizacao : Base
     {
         public string CodPJEC { get; set; }
+        public string? PJECAcao { get; set; }
         public string? ConteudoAtualizacao { get; set; }
         public string? TituloMovimento { get; set; }
         public DateTime? DataMovimentacao { get; set; }
