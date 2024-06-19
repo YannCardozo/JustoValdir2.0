@@ -3,14 +3,18 @@
 @using JustoFront.Services
 @using JustoFront.Services.Interface
 @inject IProcessoService ProcessoService
+@inject NavigationManager Navegacao
+<div class="d-flex" style="gap:20px;">
+    <button class="btn btn-danger" @onclick="Voltar">Voltar</button><h3>Atualizações do processo: @CodProcessoTitulo</h3>
+</div>
 
-<h3>Detalhes do Processo @ProcessoId</h3>
 
 @if (lstProcessosAtualizados != null)
 {
     <table class="table table-hover">
         <thead>
             <tr>
+                <th scope="col">Id</th>
                 <th scope="col">CodPJEC</th>
                 <th scope="col">TituloMovimento</th>
                 <th scope="col">ConteudoAtualizacao</th>
@@ -22,15 +26,12 @@
             @foreach (var atualizacao in lstProcessosAtualizados.OrderBy(a => a.DataMovimentacao))
             {
                 <tr>
+                    <td>@atualizacao.Id</td>
                     <td>@atualizacao.CodPJEC</td>
                     <td>@atualizacao.TituloMovimento</td>
                     <td>
                         <div class="scrollable-content">
-                            @for(int i = 0; i < 100;i++)
-                            {
                                 @atualizacao.ConteudoAtualizacao
-
-                            }
                         </div>
                     </td>
                     <td>@atualizacao.DataMovimentacao</td>
@@ -67,9 +68,16 @@ else
     public int ProcessoId { get; set; }
 
     public List<ProcessosAtualizacao> lstProcessosAtualizados = new();
+    public string CodProcessoTitulo = "";
+
+    public void Voltar()
+    {
+        Navegacao.NavigateTo("/Processos/Index");
+    }
 
     protected override async Task OnInitializedAsync()
     {
         lstProcessosAtualizados = await ProcessoService.GetAllProcessoAtualizadoAsync(ProcessoId);
+        CodProcessoTitulo = lstProcessosAtualizados[0].CodPJEC.ToString();
     }
 }

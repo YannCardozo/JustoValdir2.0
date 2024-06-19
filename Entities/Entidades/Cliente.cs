@@ -52,12 +52,5 @@ namespace Justo.Entities.Entidades
         [Column(Order = 1)]
         public int? EnderecoId { get; set; }
         public virtual Endereco? Endereco { get; set; }
-
-
-        [ForeignKey("Processo")]
-        [Column(Order = 2)]
-        public int? ProcessoId { get; set; }
-        public virtual Processo? Processo { get; set; }
-
     }
 }

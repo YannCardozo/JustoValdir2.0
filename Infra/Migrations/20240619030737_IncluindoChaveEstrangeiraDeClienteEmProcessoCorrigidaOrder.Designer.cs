@@ -4,6 +4,7 @@ using Infra.Configuração;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace Infra.Migrations
 {
     [DbContext(typeof(ContextBase))]
-    partial class ContextBaseModelSnapshot : ModelSnapshot
+    [Migration("20240619030737_IncluindoChaveEstrangeiraDeClienteEmProcessoCorrigidaOrder")]
+    partial class IncluindoChaveEstrangeiraDeClienteEmProcessoCorrigidaOrder
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -282,6 +285,10 @@ namespace Infra.Migrations
                     b.Property<string>("PisPasep")
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int?>("ProcessoId")
+                        .HasColumnType("int")
+                        .HasColumnOrder(2);
+
                     b.Property<string>("ProcuracaoRepresentacaoLegal")
                         .HasColumnType("nvarchar(max)");
 
@@ -309,6 +316,8 @@ namespace Infra.Migrations
                     b.HasIndex("EnderecoId")
                         .IsUnique()
                         .HasFilter("[EnderecoId] IS NOT NULL");
+
+                    b.HasIndex("ProcessoId");
 
                     b.ToTable("Cliente");
                 });
@@ -737,15 +746,15 @@ namespace Infra.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "172fd178-c088-4bb8-9f03-c798ecedb324",
-                            ConcurrencyStamp = "13a70e2e-edbe-47e0-81dc-b37ea422e7a5",
+                            Id = "a06ed2d9-ad3e-4c8c-86af-6a0aba6a128b",
+                            ConcurrencyStamp = "f6dda7a5-e5b6-457d-953d-7e0909dac105",
                             Name = "Usuário",
                             NormalizedName = "USUÁRIO"
                         },
                         new
                         {
-                            Id = "a7454904-39e2-42cf-b83b-1dbc9a9452d0",
-                            ConcurrencyStamp = "db88643f-a210-4b3a-bf83-bca5caae030c",
+                            Id = "b508f537-ebfb-4621-ad2a-c2699e680a47",
+                            ConcurrencyStamp = "7e9d6040-0a29-456b-a16f-f7e75e681563",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
@@ -872,7 +881,13 @@ namespace Infra.Migrations
                         .WithOne("EnderecoCliente")
                         .HasForeignKey("Justo.Entities.Entidades.Cliente", "EnderecoId");
 
+                    b.HasOne("Justo.Entities.Entidades.Processo", "Processo")
+                        .WithMany()
+                        .HasForeignKey("ProcessoId");
+
                     b.Navigation("Endereco");
+
+                    b.Navigation("Processo");
                 });
 
             modelBuilder.Entity("Justo.Entities.Entidades.Polo", b =>

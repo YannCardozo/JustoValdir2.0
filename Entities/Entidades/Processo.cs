@@ -68,7 +68,11 @@ namespace Justo.Entities.Entidades
         public ICollection<ProcessosAtualizacao> ProcessosAtualizacoes { get; set; } = new List<ProcessosAtualizacao>();
         public ICollection<Polo> PoloPartes { get; set; } = new List<Polo>();
 
+        [ForeignKey("Cliente")]
+        [Column(Order = 2)]
 
+        public int? ClienteId { get; set; }
+        public virtual Cliente? Cliente { get; set; } = new();
 
     }
 }
