@@ -1,0 +1,86 @@
+﻿@page "/testetabela"
+@layout LayoutMudBlazor
+@using System.Net.Http.Json
+@using Justo.Entities.Entidades
+@using JustoFront.Services
+@using JustoFront.Services.Interface
+@using MudBlazor
+@inject HttpClient httpClient
+@inject IProcessoService ProcessoService
+
+<MudTable Style="margin-top: 50px !important;" Class="mt-5" Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<Processo,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Processos</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>CodPJEC</MudTh>
+        <MudTh>PJECAcao</MudTh>
+        <MudTh>TituloProcesso</MudTh>
+        <MudTh>Valor</MudTh>
+        <MudTh>ValorDaCausa</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="CodPJEC">@context.CodPJEC</MudTd>
+        <MudTd DataLabel="PJECAcao">@context.PJECAcao</MudTd>
+        <MudTd DataLabel="TituloProcesso">@context.TituloProcesso</MudTd>
+        <MudTd DataLabel="ValorDaCausa">@context.ValorDaCausa</MudTd>
+        <MudTd>
+            <a href="/testetabela/@context.Id">
+                <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowOutward" Color="Color.Primary">Movimentação</MudButton>
+            </a>
+        </MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+
+<div class="d-flex flex-wrap mt-4">
+    <!--Filtros da tabela no rodape dela.-->
+@*     <MudSwitch @bind-Checked="@hover" Color="Color.Primary">Hover</MudSwitch>
+    <MudSwitch @bind-Checked="@dense" Color="Color.Secondary">Dense</MudSwitch>
+    <MudSwitch @bind-Checked="@striped" Color="Color.Tertiary">Striped</MudSwitch>
+    <MudSwitch @bind-Checked="@bordered" Color="Color.Warning">Bordered</MudSwitch>
+    <MudSpacer /> *@
+    <div style="min-width:200px;">
+        @if(selectedItem1 != null)
+        {
+            <MudText Inline="true" Class="align-self-center">Selecionado: @selectedItem1?.CodPJEC</MudText>
+
+        }
+    </div>
+</div>
+
+@code {
+    private bool dense = false;
+    private bool hover = true;
+    private bool striped = false;
+    private bool bordered = false;
+    private string searchString1 = "";
+    private Processo selectedItem1 = null;
+    public List<Processo> lstProcessos { get; set; } = new List<Processo>();
+    private IEnumerable<Processo> Elements = new List<Processo>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        lstProcessos = await ProcessoService.GetAllProcessosAsync();
+        Elements = lstProcessos; // Atribui os processos obtidos para a tabela
+    }
+
+    private bool FilterFunc1(Processo element) => FilterFunc(element, searchString1);
+
+    private bool FilterFunc(Processo element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.CodPJEC.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.PJECAcao.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}

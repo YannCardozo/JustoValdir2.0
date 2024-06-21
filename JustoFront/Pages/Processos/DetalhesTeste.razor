@@ -1,0 +1,96 @@
+﻿@page "/testetabela/{ProcessoId:int}"
+@layout LayoutMudBlazor
+@using System.Net.Http.Json
+@using Justo.Entities.Entidades
+@using JustoFront.Services
+@using JustoFront.Services.Interface
+@using MudBlazor
+@inject NavigationManager Navegacao
+@inject IProcessoService ProcessoService
+
+<div class="d-flex" style="gap:20px;">
+    <MudButton Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.ArrowBack" @onclick="Voltar">Voltar</MudButton>
+    <h3>Atualizações do processo: @CodProcessoTitulo</h3>
+</div>
+<MudTable Style="margin-top: 50px !important;" Class="mt-5" Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<ProcessosAtualizacao,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+    
+    <ToolBarContent>
+        <MudText Typo="Typo.h6">Movimentação Processual</MudText>
+        <MudSpacer />
+        <MudTextField @bind-Value="searchString1" Placeholder="Search" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" IconSize="Size.Medium" Class="mt-0"></MudTextField>
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>Id</MudTh>
+        <MudTh>CodPJEC</MudTh>
+        <MudTh>PJECAcao</MudTh>
+        <MudTh>TituloMovimento</MudTh>
+        <MudTh>ConteudoAtualizacao</MudTh>
+        <MudTh>DataMovimentacao</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="CodPJEC">@context.CodPJEC</MudTd>
+        <MudTd DataLabel="PJECAcao">@context.PJECAcao</MudTd>
+        <MudTd DataLabel="TituloMovimento">@context.TituloMovimento</MudTd>
+        <MudTd DataLabel="ConteudoAtualizacao">
+            <div class="scrollable-content">
+                @context.ConteudoAtualizacao
+            </div>
+        </MudTd>
+        <MudTd DataLabel="DataMovimentacao">@context.DataMovimentacao</MudTd>
+    </RowTemplate>
+    <PagerContent>
+        <MudTablePager />
+    </PagerContent>
+</MudTable>
+@code {
+    [Parameter]
+    public int ProcessoId { get; set; }
+    public List<ProcessosAtualizacao> lstProcessosAtualizados = new();
+    public string CodProcessoTitulo = "";
+
+    private bool dense = false;
+    private bool hover = true;
+    private bool striped = false;
+    private bool bordered = false;
+    private string searchString1 = "";
+    private ProcessosAtualizacao selectedItem1 = null;
+    private IEnumerable<ProcessosAtualizacao> Elements = new List<ProcessosAtualizacao>();
+
+    public void Voltar()
+    {
+        Navegacao.NavigateTo("/testetabela");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        await LoadDataAsync();
+    }
+
+    private async Task LoadDataAsync()
+    {
+        lstProcessosAtualizados = await ProcessoService.GetAllProcessoAtualizadoAsync(ProcessoId);
+        if (lstProcessosAtualizados != null && lstProcessosAtualizados.Count > 0)
+        {
+            Elements = lstProcessosAtualizados;
+            CodProcessoTitulo = lstProcessosAtualizados[0].CodPJEC;
+        }
+    }
+
+    private bool FilterFunc1(ProcessosAtualizacao element) => FilterFunc(element, searchString1);
+
+    private bool FilterFunc(ProcessosAtualizacao element, string searchString)
+    {
+        if (string.IsNullOrWhiteSpace(searchString))
+            return true;
+        if (element.CodPJEC.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.PJECAcao.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.TituloMovimento.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        if (element.ConteudoAtualizacao.Contains(searchString, StringComparison.OrdinalIgnoreCase))
+            return true;
+        return false;
+    }
+}
