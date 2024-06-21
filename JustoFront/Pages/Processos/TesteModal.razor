@@ -1,0 +1,83 @@
+﻿@using System.Net.Http.Json
+@using Justo.Entities.Entidades
+@using JustoFront.Services
+@using JustoFront.Services.Interface
+@using MudBlazor
+@inject NavigationManager Navegacao
+@inject IProcessoService ProcessoService
+
+<MudDialog DisableSidePadding="true">
+    <DialogContent>
+        <MudContainer Style="max-height: 300px; overflow-y: scroll">
+            @if (Loading)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                @foreach (var registro in LstProcessoAtualizacao)
+                {
+                    <MudTd DataLabel="Id">@registro.Id</MudTd>
+                    <MudTd DataLabel="CodPJEC">@registro.CodPJEC</MudTd>
+                    <MudTd DataLabel="PJECAcao">@registro.PJECAcao</MudTd>
+                    <MudTd DataLabel="TituloMovimento">@registro.TituloMovimento</MudTd>
+                    <MudTd DataLabel="DataMovimentacao">@registro.DataMovimentacao</MudTd>
+                    <MudText Style="white-space: pre-wrap;">
+                        @registro.ConteudoAtualizacao
+                    </MudText>
+                    <hr />
+                }
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="() => PrecisoDeAjuda()">Preciso de ajuda</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Ok">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter]
+    public int ProcessoId { get; set; }
+    [Inject] HttpClient HttpClient { get; set; }
+    public List<ProcessosAtualizacao> LstProcessoAtualizacao = new();
+
+    public string processo = "";
+    public string processo_acao = "";
+    public string cliente = "";
+
+    public string mensagem = "";
+    public string encodedMensagem = "";
+
+    private bool Loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Loading = true;
+        LstProcessoAtualizacao = await ProcessoService.GetAllProcessoAtualizadoAsync(ProcessoId);
+        Loading = false;
+
+        var primeiroRegistro = LstProcessoAtualizacao.FirstOrDefault();
+        if (primeiroRegistro != null)
+        {
+            processo = primeiroRegistro.CodPJEC?.ToString() ?? "";
+            processo_acao = primeiroRegistro.PJECAcao?.ToString() ?? "";
+            cliente = primeiroRegistro.Nome?.ToString() ?? "";
+
+            mensagem = $"Olá Natali! Preciso de ajuda com esse processo: {processo} + Acao: {processo_acao} + cliente: {cliente}";
+            encodedMensagem = Uri.EscapeDataString(mensagem);
+        }
+    }
+
+    private void PrecisoDeAjuda()
+    {
+        var whatsappUrl = $"https://api.whatsapp.com/send/?phone=5521997465928&text={encodedMensagem}&type=phone_number&app_absent=0";
+        Navegacao.NavigateTo(whatsappUrl);
+    }
+
+    private void Ok()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

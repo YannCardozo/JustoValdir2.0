@@ -5,7 +5,7 @@
 @using JustoFront.Services
 @using JustoFront.Services.Interface
 @using MudBlazor
-@inject HttpClient httpClient
+@inject IDialogService DialogService
 @inject IProcessoService ProcessoService
 
 <MudTable Style="margin-top: 50px !important;" Class="mt-5" Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<Processo,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
@@ -24,15 +24,21 @@
     </HeaderContent>
     <RowTemplate>
         <MudTd DataLabel="Id">@context.Id</MudTd>
+        <MudTd DataLabel="CodPJEC">@context.Cliente.ToString()</MudTd>
         <MudTd DataLabel="CodPJEC">@context.CodPJEC</MudTd>
         <MudTd DataLabel="PJECAcao">@context.PJECAcao</MudTd>
         <MudTd DataLabel="TituloProcesso">@context.TituloProcesso</MudTd>
         <MudTd DataLabel="ValorDaCausa">@context.ValorDaCausa</MudTd>
         <MudTd>
+            <MudButton OnClick="() => OpenDialog(context.Id)" Variant="Variant.Filled" Color="Color.Primary">
+                Movimentação
+            </MudButton>
+        </MudTd>
+@*         <MudTd>
             <a href="/testetabela/@context.Id">
                 <MudButton Variant="Variant.Filled" EndIcon="@Icons.Material.Filled.ArrowOutward" Color="Color.Primary">Movimentação</MudButton>
             </a>
-        </MudTd>
+        </MudTd> *@
     </RowTemplate>
     <PagerContent>
         <MudTablePager />
@@ -64,11 +70,15 @@
     private Processo selectedItem1 = null;
     public List<Processo> lstProcessos { get; set; } = new List<Processo>();
     private IEnumerable<Processo> Elements = new List<Processo>();
+    public List<Polo> PoloComProcesso = new();
+
+    public int ProcessoId = 1;
 
     protected override async Task OnInitializedAsync()
     {
         lstProcessos = await ProcessoService.GetAllProcessosAsync();
-        Elements = lstProcessos; // Atribui os processos obtidos para a tabela
+        PoloComProcesso = await ProcessoService.GetAllProcessosComPoloAsync(ProcessoId);
+        Elements = lstProcessos;
     }
 
     private bool FilterFunc1(Processo element) => FilterFunc(element, searchString1);
@@ -82,5 +92,19 @@
         if (element.PJECAcao.Contains(searchString, StringComparison.OrdinalIgnoreCase))
             return true;
         return false;
+    }
+
+    private bool license_accepted = false;
+
+    async Task OpenDialog(int ProcessoId)
+    {
+        var parameters = new DialogParameters { { "ProcessoId", ProcessoId } };
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var result = await DialogService.Show<TesteModal>("Movimentação Processual", parameters, options).Result;
+
+        if (!result.Canceled)
+        {
+            license_accepted = (bool)(result.Data ?? false);
+        }
     }
 }

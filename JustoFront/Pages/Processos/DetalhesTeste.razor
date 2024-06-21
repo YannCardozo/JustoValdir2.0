@@ -8,11 +8,11 @@
 @inject NavigationManager Navegacao
 @inject IProcessoService ProcessoService
 
-<div class="d-flex" style="gap:20px;">
+<div class="d-flex" style="gap:20px;margin-top:50px;">
     <MudButton Variant="Variant.Filled" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.ArrowBack" @onclick="Voltar">Voltar</MudButton>
     <h3>Atualizações do processo: @CodProcessoTitulo</h3>
 </div>
-<MudTable Style="margin-top: 50px !important;" Class="mt-5" Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<ProcessosAtualizacao,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
+<MudTable Class="mt-5" Items="@Elements" Dense="@dense" Hover="@hover" Bordered="@bordered" Striped="@striped" Filter="new Func<ProcessosAtualizacao,bool>(FilterFunc1)" @bind-SelectedItem="selectedItem1">
     
     <ToolBarContent>
         <MudText Typo="Typo.h6">Movimentação Processual</MudText>

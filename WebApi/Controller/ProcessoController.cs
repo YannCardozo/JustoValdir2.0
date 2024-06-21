@@ -41,6 +41,9 @@ namespace WebApi.Controller
                 return BadRequest($"Erro no servidor: {ex.Message}");
             }
         }
+        GetAllProcessosComPoloNome
+
+
 
         [AllowAnonymous]
         [Produces("application/json")]
