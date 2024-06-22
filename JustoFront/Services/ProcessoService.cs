@@ -41,30 +41,6 @@ namespace JustoFront.Services
                 return null;
             }
         }
-        public async Task<List<Polo>> GetAllProcessosComPoloAsync(int ProcessoId)
-        {
-            var url = "api/Processo/GetAllProcessosComPoloNome";
-
-            try
-            {
-                var response = await _httpClient.GetAsync(url);
-                if (response.IsSuccessStatusCode)
-                {
-                    var responseData = await response.Content.ReadAsStringAsync();
-                    return JsonSerializer.Deserialize<List<Polo>>(responseData, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
-                }
-                else
-                {
-                    await _jsRuntime.InvokeVoidAsync("alert", $"Erro ao obter processos: {response.ReasonPhrase}");
-                    return null;
-                }
-            }
-            catch (Exception ex)
-            {
-                await _jsRuntime.InvokeVoidAsync("alert", $"Exceção ao obter processos: {ex.Message}");
-                return null;
-            }
-        }
 
         public async Task<List<ProcessosAtualizacao>> GetAllProcessoAtualizadoAsync(int processoId)
         {

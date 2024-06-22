@@ -6,7 +6,6 @@ namespace JustoFront.Services.Interface
     public interface IProcessoService
     {
         Task<List<Processo>> GetAllProcessosAsync();
-        Task<List<Polo>> GetAllPoloComNome(int ProcessoId);
         Task<List<ProcessosAtualizacao>> GetAllProcessoAtualizadoAsync(int processoId);
 
 
