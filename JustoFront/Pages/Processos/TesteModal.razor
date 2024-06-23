@@ -17,13 +17,13 @@
             {
                 @foreach (var registro in LstProcessoAtualizacao)
                 {
-                    <MudTd DataLabel="Id">@registro.Id</MudTd>
-                    <MudTd DataLabel="CodPJEC">@registro.CodPJEC</MudTd>
-                    <MudTd DataLabel="PJECAcao">@registro.PJECAcao</MudTd>
-                    <MudTd DataLabel="TituloMovimento">@registro.TituloMovimento</MudTd>
-                    <MudTd DataLabel="DataMovimentacao">@registro.DataMovimentacao</MudTd>
+@*                     <MudText >@registro.Id</MudText> *@
+                    <MudText >Processo: @registro.CodPJEC</MudText>
+                    <MudText >Ação: @registro.PJECAcao</MudText>
+                    <MudText >Título movimento: @registro.TituloMovimento</MudText>
+                    <MudText Class="mb-3">Data da movimentação: @registro.DataMovimentacao</MudText>
                     <MudText Style="white-space: pre-wrap;">
-                        @registro.ConteudoAtualizacao
+                        Movimento: @registro.ConteudoAtualizacao
                     </MudText>
                     <hr />
                 }
