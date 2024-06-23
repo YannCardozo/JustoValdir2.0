@@ -1,0 +1,19 @@
+﻿@page "/testeemail"
+@using JustoFront.Services.Email
+@inject HttpClient HttpClient
+
+<button class="btn btn-primary" @onclick="SendEmail">Send Email</button>
+
+@code {
+    private async Task SendEmail()
+    {
+        var emailRequest = new EmailRequest
+            {
+                To = "destinatario@exemplo.com",
+                Subject = "Assunto do Teste",
+                Body = "Este é o corpo do email de teste."
+            };
+        var response = await HttpClient.PostAsJsonAsync($"api/email/send", emailRequest);
+        response.EnsureSuccessStatusCode();
+    }
+}

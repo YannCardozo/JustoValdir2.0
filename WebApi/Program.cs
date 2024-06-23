@@ -12,6 +12,7 @@ using Entities.Entidades;
 using Infra.Configuração;
 using Infra.Repositório;
 using Infra.Repositório.Generics;
+using WebApi.Email;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -130,6 +131,25 @@ builder.Services.AddSingleton<InterfaceEndereco, RepositorioEndereco>();
 builder.Services.AddSingleton<InterfaceEspecialidade, RepositorioEspecialidade>();
 builder.Services.AddSingleton<InterfacePolo, RepositorioPolo>();
 builder.Services.AddSingleton<InterfaceProcesso, RepositorioProcesso>();
+
+
+
+
+//email
+builder.Configuration.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true);
+
+var emailConfig = builder.Configuration.GetSection("EmailConfiguration").Get<EmailConfiguration>();
+builder.Services.AddSingleton(emailConfig);
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+// Configurar logging
+builder.Logging.ClearProviders();
+builder.Logging.AddConsole();
+builder.Logging.AddDebug();
+
+
+
+
 
 
 var app = builder.Build();
