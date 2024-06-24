@@ -1,102 +1,64 @@
 ﻿@page "/advogados/index"
+@layout LayoutMudBlazor
+@using MudBlazor
 @using Commom.models.Advogados
 @using Justo.Entities.Entidades
 @using JustoFront.Pages.Advogados
 @using JustoFront.Services.Interface
-@inject IAdvogadoService AdvogadoService 
+@inject IAdvogadoService AdvogadoService
 @inject IJSRuntime JsRunTime
 @inject NavigationManager Navigation
-@* @attribute [Authorize(Roles = "Admin")] *@
-
+@inject IDialogService DialogService
 
 @if (AdvogadosLista != null && AdvogadosLista.Count > 0)
 {
-
     <h3>Painel de Advogados</h3>
 
     @if (AdvogadosLista == null)
     {
         <span><em>Carregando...</em></span>
     }
-
     else
     {
-        <button class="btn btn-primary" @onclick="AdicionarAdvogado">
-            <i class="bi bi-plus-square"></i>Adicionar
-        </button>
-        <table class="table table-hover">
-            <thead style="text-align:center;">
-                <tr>
-                    <th>Nome</th>
-                    <th>OAB</th>
-                    <th>Cpf</th>
-                    <th>Editar</th>
-                    <th>Remover</th>
-                </tr>
-            </thead>
-            <tbody>
-                @foreach (var Advogado in AdvogadosListaComId)
-                {
-                    <tr>
-                        <td>
-                            @if (!string.IsNullOrEmpty(Advogado.Nome))
-                            {
-                                <span>@Advogado.Nome</span>
-                            }
-                            else
-                            {
-                                <span>Advogado sem Nome cadastrado.</span>
-                            }
-                        </td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(Advogado.Oab))
-                            {
-                                <span>@Advogado.Oab</span>
-                            }
-                            else
-                            {
-                                <span>Advogado sem Oab cadastrado.</span>
-                            }
-                        </td>
-                        <td>
-                            @if (!string.IsNullOrEmpty(Advogado.Cpf))
-                            {
-                                <span>@Advogado.Cpf</span>
-                            }
-                            else
-                            {
-                                <span>Advogado sem CPF cadastrado.</span>
-                            }
-                        </td>
-                        <td>
-                            <button class="btn btn-primary" @onclick="@(e => AbrirModal(Advogado))">Ver Detalhes</button>
-                        </td>
-                        <td>
-                            <button class="btn btn-primary" @onclick="@(e => DeletarAdvogado(Advogado))">Remover Advogado</button>
-                        </td>
-                    </tr>
-                }
-            </tbody>
-        </table>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AdicionarAdvogado" Disabled>
+            <MudIcon Icon="Icons.Material.Filled.Add" /> Adicionar
+        </MudButton>
+        <MudSimpleTable Items="AdvogadosListaComId" Hover="true" Breakpoint="Breakpoint.Sm">
+            <MudTh>Nome</MudTh>
+            <MudTh>Oab</MudTh>
+            <MudTh>Cpf</MudTh>
+            <MudTh>Editar</MudTh>
+            <MudTh>Remover</MudTh>
+            @foreach (var registro in AdvogadosListaComId)
+            {
+                <MudTr>
+                    <MudTd DataLabel="Nome">@registro.Nome</MudTd>
+                        <MudTd DataLabel="Oab">@registro.Oab</MudTd>
+                        <MudTd DataLabel="Cpf">@registro.Cpf</MudTd>
+                            <MudTd>
+                            <MudButton OnClick="() => OpenDialog(registro)" Variant="Variant.Filled" Color="Color.Primary" Disabled>
+                                Detalhes
+                         </MudButton>
+                     </MudTd>
+                     <MudTd>
+                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => DeletarAdvogado(registro))">Remover Advogado</MudButton>
+                     </MudTd>
+                 </MudTr>
+            }
+        </MudSimpleTable>
     }
 }
 else
 {
-<button class="btn btn-primary" @onclick="AdicionarAdvogado">
-    <i class="bi bi-plus-square"></i>Adicionar
-</button>
-<p>Nenhum Advogado encontrado.</p>
-
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AdicionarAdvogado">
+        <MudIcon Icon="Icons.Material.Filled.Add" /> Adicionar
+    </MudButton>
+    <p>Nenhum Advogado encontrado.</p>
 }
-<ModalAdvogadoEdit AdvogadoModal="AdvogadoSelecionado" ModalVisivel="ModalAbertoEdit" OnClose="FecharModal" />
-<ModalAdvogadoAdd ModalVisivel="ModalAbertoAdd" OnClose="FecharModal" />
 
 @code {
     public List<AdvogadoDTO> AdvogadosLista { get; set; } = new();
     public List<Advogado> AdvogadosListaComId { get; set; } = new();
-
-
-
 
     private bool ModalAbertoAdd = false;
     private bool ModalAbertoEdit = false;
@@ -107,10 +69,8 @@ else
         AdvogadosListaComId = await AdvogadoService.GetAdvogadosComIdAsync();
         var advogadosComId = await AdvogadoService.GetAdvogadosComIdAsync();
 
-        // Limpa a lista de AdvogadoDTO se necessário (opcional).
         AdvogadosLista.Clear();
 
-        // Converte cada Advogado para AdvogadoDTO e adiciona à lista de DTOs.
         foreach (var advogado in advogadosComId)
         {
             var advogadoDto = new AdvogadoDTO
@@ -123,9 +83,8 @@ else
 
             AdvogadosLista.Add(advogadoDto);
         }
-
-
     }
+
     public void AbrirModal(Advogado advogado)
     {
         AdvogadoSelecionado = new AdvogadoDTO
@@ -138,27 +97,24 @@ else
         ModalAbertoEdit = true;
         StateHasChanged();
     }
+
     public async Task DeletarAdvogado(Advogado advogado)
     {
         var confirmed = await JsRunTime.InvokeAsync<bool>("confirm", "Deseja mesmo remover esse advogado?");
         if (confirmed)
         {
-            // O usuário clicou em OK, coloque o código de remoção aqui
-            // Por exemplo, chamar um serviço para remover o advogado do banco de dados
             var deletaadvogado = await AdvogadoService.DeleteAdvogadoAsync(advogado.Id);
-            if(deletaadvogado.IsSuccessStatusCode)
+            if (deletaadvogado.IsSuccessStatusCode)
             {
                 await JsRunTime.InvokeVoidAsync("alert", $"{advogado.Nome} removido com sucesso");
                 StateHasChanged();
                 Navigation.NavigateTo("/");
-                Navigation.NavigateTo("/Advogados/index");
+                Navigation.NavigateTo("/advogados/index");
             }
             else
             {
-                await JsRunTime.InvokeVoidAsync("alert", deletaadvogado);
-
+                await JsRunTime.InvokeVoidAsync("alert", "Erro ao remover advogado");
             }
-
         }
         else
         {
@@ -166,6 +122,7 @@ else
             StateHasChanged();
         }
     }
+
     public void FecharModal()
     {
         ModalAbertoEdit = false;
@@ -177,5 +134,26 @@ else
     {
         ModalAbertoAdd = true;
         StateHasChanged();
+    }
+    private bool license_accepted = false;
+
+    async Task OpenDialog(Advogado advogado)
+    {
+        var advogadoDTO = new AdvogadoDTO
+            {
+                Id = advogado.Id,
+                Nome = advogado.Nome,
+                Cpf = advogado.Cpf,
+                Oab = advogado.Oab
+            };
+
+        var parameters = new DialogParameters { { "AdvogadoModal", advogadoDTO } };
+        var options = new DialogOptions { CloseOnEscapeKey = true };
+        var result = await DialogService.Show<ModalAdvogadoEdit>("Editar Advogado", parameters, options).Result;
+
+        if (!result.Canceled)
+        {
+            license_accepted = (bool)(result.Data ?? false);
+        }
     }
 }

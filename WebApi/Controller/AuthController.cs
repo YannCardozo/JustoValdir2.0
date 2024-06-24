@@ -180,7 +180,8 @@ namespace WebApi.Controller
                 Email = model.Email,
                 SecurityStamp = Guid.NewGuid().ToString(),
                 UserName = model.Username,
-                CPF = model.Cpf
+                CPF = model.Cpf,
+                EmailConfirmed = false
             };
             var result = await _userManager.CreateAsync(user, model.Password!);
             if(!result.Succeeded)
@@ -189,7 +190,9 @@ namespace WebApi.Controller
             }
 
             //atribuindo ao perfil de usuário como DEFAULT ao criar o registro.
-            await _userManager.AddToRoleAsync(user, "Teste");
+            await _userManager.AddToRoleAsync(user, "Usuário");
+
+
             return Ok($"Usuário {model.Username} Criado com sucesso");
         }
 

@@ -22,12 +22,17 @@ namespace WebApi.Controller
             await _emailService.SendEmailAsync(request.To, request.Subject, request.Body);
             return Ok();
         }
+
+        //[AllowAnonymous]
+        //[HttpPost("cadastrar/{string}")]
+        //public async Task<IActionResult> EmailCadastrarUsuario([FromBody] EmailRequest request)
+        //{
+        //    if(string.IsNullOrEmpty(request.Token))
+        //    {
+
+        //    }
+        //}
     }
 
-    public class EmailRequest
-    {
-        public string To { get; set; }
-        public string Subject { get; set; }
-        public string Body { get; set; }
-    }
+
 }

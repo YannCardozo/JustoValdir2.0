@@ -3,6 +3,8 @@
 @using Entities.Entidades
 @using JustoFront.Services
 @using Justo.Entities
+@using MudBlazor
+@layout LayoutMudBlazor
 @inject IUsuarioService UsuarioService
 @inject NavigationManager Navigation
 @inject IJSRuntime JsRuntime
@@ -19,85 +21,35 @@ else if (usuarios.Count == 0)
 }
 else
 {
-    <button class="btn btn-primary" @onclick="AdicionarUsuario">
-        <i class="bi bi-plus-square"></i>Adicionar
-    </button>
-    <table class="table">
-        <thead style="text-align:center;">
-            <tr>
-                <th>Id</th>
-                <th>Usuário</th>
-                <th>Email</th>
-                <th>CPF</th>
-                <th>Perfil</th>
-                <th>Detalhes</th>
-                <th>Remover</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var usuario in usuarios)
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AdicionarUsuario">
+        <MudIcon Icon="Icons.Material.Filled.Add" /> Adicionar
+    </MudButton>
+    <MudSimpleTable Style="margin-top: 50px !important;" Class="mt-5" Hover="true" Bordered="true">
+        <MudTh>Id</MudTh>
+        <MudTh>Usuário</MudTh>
+        <MudTh>Email</MudTh>
+        <MudTh>CPF</MudTh>
+        <MudTh>Perfil</MudTh>
+        <MudTh>Detalhes</MudTh>
+        <MudTh>Remover</MudTh>
+        @foreach (var registro in usuarios)
             {
-                <tr>
-                    <td>
-                        @if (usuario.Id != null)
-                        {
-                            <span>@usuario.Id</span>
-                        }
-                        else
-                        {
-                            <span>Usuário sem ID cadastrado.</span>
-                        }
-                    </td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(usuario.UserName))
-                        {
-                            <span>@usuario.UserName</span>
-                        }
-                        else
-                        {
-                            <span>Usuário sem username cadastrado.</span>
-                        }
-                    </td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(usuario.Email))
-                        {
-                            <span>@usuario.Email</span>
-                        }
-                        else
-                        {
-                            <span>Usuário sem email cadastrado.</span>
-                        }
-                    </td>
-                    <td>
-                        @if (!string.IsNullOrEmpty(usuario.CPF))
-                        {
-                            <span>@usuario.CPF</span>
-                        }
-                        else
-                        {
-                            <span>Usuário sem CPF cadastrado.</span>
-                        }
-                    </td>
-                    <td>
-                        @if (usuario.Roles != null)
-                        {
-                            @string.Join(", ", usuario.Roles)
-                        }
-                        else
-                        {
-                            <span>Usuário sem perfil cadastrado.</span>
-                        }
-                    </td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="@(e => AbrirModal(usuario))">Ver Detalhes</button>
-                    </td>
-                    <td>
-                        <button class="btn btn-primary" @onclick="@(e => RemoverUsuario(usuario))">Remover</button>
-                    </td>
-                </tr>
+                <MudTr>
+                    <MudTd DataLabel="Id">@registro.Id</MudTd>
+                    <MudTd DataLabel="Usuário">@registro.UserName</MudTd>
+                    <MudTd DataLabel="Email">@registro.Email</MudTd>
+                    <MudTd DataLabel="CPF">@registro.CPF</MudTd>
+                    <MudTd DataLabel="Perfil">@(registro.Roles != null ? string.Join(", ", registro.Roles) : "Usuário sem perfil cadastrado.")</MudTd>
+                    <MudTd>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => AbrirModal(registro))">Ver Detalhes</MudButton>
+                    </MudTd>
+                    <MudTd>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => RemoverUsuario(registro))">Remover</MudButton>
+                    </MudTd>
+                </MudTr>
             }
-        </tbody>
-    </table>
+
+    </MudSimpleTable>
 }
 
 <ModalPainelEdit UsuarioModal="usuarioSelecionado" ModalVisivel="ModalAbertoEdit" OnClose="FecharModal" />
