@@ -19,7 +19,7 @@ namespace JustoFront.Services
         //Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuario);
         Task<HttpResponseMessage> DeleteUserAsync(string id);
         Task<ApplicationUser> GetUsuarioByCpfAsync(string cpf);
-
+        Task<HttpResponseMessage> AtivarUsuarioEmail(string email);
     }
 
     public class UsuarioService : IUsuarioService
@@ -177,7 +177,18 @@ namespace JustoFront.Services
 
             return null;
         }
+        public async Task<HttpResponseMessage> AtivarUsuarioEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new ArgumentException("Email do usuário a ser ativado não pode ser vazio ou nulo.");
+            }
 
+            var urlemail = $"api/Auth/confirmaemailmanual?email={Uri.EscapeDataString(email)}";
+
+            var response = await _httpClient.GetAsync(urlemail);
+            return response;
+        }
     }
 
 }

@@ -288,7 +288,28 @@ namespace WebApi.Controller
             }
         }
 
+        [Authorize]
+        [HttpGet]
+        [Route("confirmaemailmanual")]
+        public async Task<IActionResult> ConfirmEmailManual(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return BadRequest("Usuário não encontrado.");
+            }
 
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+            {
+                return Ok("E-mail confirmado com sucesso!");
+            }
+            else
+            {
+                return BadRequest("Falha ao confirmar o e-mail.");
+            }
+        }
     }
 
 }

@@ -50,7 +50,7 @@ else
                     else
                     {
                         <MudTd>
-                            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">Inativo</MudButton>
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@((e => AtivarUsuario(registro.Email)))">Inativo</MudButton>
                         </MudTd>
                     }
                     <MudTd>
@@ -74,7 +74,8 @@ else
     private bool ModalAbertoAdd = false; 
     private bool ModalAbertoEdit = false;
     public UsuarioComRole usuarioSelecionado = new();
-
+    private string email;
+    private string mensagem;
     protected override async Task OnInitializedAsync()
     {
         usuarios = await UsuarioService.GetUsuariosAsync();
@@ -133,5 +134,34 @@ else
             await JsRuntime.InvokeVoidAsync("alert", "Remoção de usuário cancelado.");
             StateHasChanged();
         }
+    }
+
+    public async Task AtivarUsuario(string email)
+    {
+        try
+        {
+            var response = await UsuarioService.AtivarUsuarioEmail(email);
+
+            if (response.IsSuccessStatusCode)
+            {
+                mensagem = "Usuário ativado com sucesso!";
+                await JsRuntime.InvokeVoidAsync("alert", mensagem);
+                StateHasChanged();
+            }
+            else
+            {
+                mensagem = "Falha ao ativar o usuário.";
+                await JsRuntime.InvokeVoidAsync("alert", mensagem);
+                StateHasChanged();
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagem = $"Erro: {ex.Message}";
+        }
+    }
+    public void DesativarUsuario(string email)
+    {
+        Console.WriteLine(email);
     }
 }
