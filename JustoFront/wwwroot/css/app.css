@@ -3,7 +3,14 @@
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
+.cor-primaria {
+    background-color: #2687e9 !important;
+}
 
+.cor-secundaria
+{
+    color:cornflowerblue;
+}
 h1:focus {
     outline: none;
 }
