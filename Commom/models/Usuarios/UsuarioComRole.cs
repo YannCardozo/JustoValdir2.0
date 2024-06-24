@@ -38,6 +38,8 @@ namespace Commom.models.Usuarios
         [Required(ErrorMessage = "A senha é obrigatória.")]
         [RegularExpression(PasswordAndUsernamePattern, ErrorMessage = "A senha deve conter pelo menos uma letra maiúscula, uma letra minúscula, um número e um caractere especial.")]
         public string Password { get; set; }
+
+        public bool? EmailConfirmed { get; set; }
     }
 }
 

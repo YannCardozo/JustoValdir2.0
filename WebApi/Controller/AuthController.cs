@@ -12,6 +12,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using WebApi.Controller.MethodsCommom;
+using WebApi.Email;
 using WebApi.Token;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
@@ -28,13 +29,14 @@ namespace WebApi.Controller
         private readonly IConfiguration _configuration;
         private readonly ILogger<AuthController> _logger;
         private readonly ContextBase _context;
-
+        private readonly IEmailService _emailService;
         public AuthController(ITokenService tokenService,
                               UserManager<ApplicationUser> userManager,
                               RoleManager<IdentityRole> roleManager,
                               IConfiguration configuration,
                               ILogger<AuthController> logger,
-                              ContextBase context)
+                              ContextBase context,
+                              IEmailService _EmailService)
         {
             _tokenService = tokenService;
             _userManager = userManager;
@@ -42,6 +44,7 @@ namespace WebApi.Controller
             _configuration = configuration;
             _logger = logger;
             _context = context;
+            _emailService = _EmailService;
         }
         [AllowAnonymous]
         [HttpPost]
@@ -192,7 +195,11 @@ namespace WebApi.Controller
             //atribuindo ao perfil de usuário como DEFAULT ao criar o registro.
             await _userManager.AddToRoleAsync(user, "Usuário");
 
+            // Gera o token de ativação
+            var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+            var confirmationLink = Url.Action(nameof(ConfirmEmail), "Auth", new { token, email = user.Email }, Request.Scheme);
 
+            await _emailService.SendEmailAsync(user.Email, "Confirme seu e-mail no natali-adv", $"Por favor, confirme sua conta clicando neste link: <a href='{confirmationLink}'>link</a>");
             return Ok($"Usuário {model.Username} Criado com sucesso");
         }
 
@@ -254,6 +261,29 @@ namespace WebApi.Controller
 
             return Ok($"refresh token revogado de : {username}");
         }
+        [AllowAnonymous]
+        [HttpGet]
+        [Route("confirmemail")]
+        public async Task<IActionResult> ConfirmEmail(string token, string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return BadRequest("Usuário não encontrado.");
+            }
+
+            var result = await _userManager.ConfirmEmailAsync(user, token);
+            if (result.Succeeded)
+            {
+                return Ok("E-mail confirmado com sucesso!");
+            }
+            else
+            {
+                return BadRequest("Falha ao confirmar o e-mail.");
+            }
+        }
+
+
     }
 
 }

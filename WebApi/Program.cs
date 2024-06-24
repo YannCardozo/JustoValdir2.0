@@ -77,7 +77,11 @@ builder.Services.AddDbContext<ContextBase>(options =>
     options.UseSqlServer(connectionString));
 
 //applicationuser esta HERDANDO identityuser****
-builder.Services.AddIdentity<ApplicationUser, IdentityRole>()
+builder.Services.AddIdentity<ApplicationUser, IdentityRole>(
+    options =>
+    {   //adicionando confirmação de email para o usuário
+        options.SignIn.RequireConfirmedEmail = true;
+    })
     .AddRoles<IdentityRole>()
     .AddEntityFrameworkStores<ContextBase>()
     .AddDefaultTokenProviders();

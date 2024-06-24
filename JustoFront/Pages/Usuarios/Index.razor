@@ -30,6 +30,7 @@ else
         <MudTh>Email</MudTh>
         <MudTh>CPF</MudTh>
         <MudTh>Perfil</MudTh>
+        <MudTh>Status</MudTh>
         <MudTh>Detalhes</MudTh>
         <MudTh>Remover</MudTh>
         @foreach (var registro in usuarios)
@@ -40,6 +41,18 @@ else
                     <MudTd DataLabel="Email">@registro.Email</MudTd>
                     <MudTd DataLabel="CPF">@registro.CPF</MudTd>
                     <MudTd DataLabel="Perfil">@(registro.Roles != null ? string.Join(", ", registro.Roles) : "Usuário sem perfil cadastrado.")</MudTd>
+                    @if (@registro.EmailConfirmed == true)
+                    {
+                        <MudTd>
+                            <MudButton Variant="Variant.Filled" Color="Color.Tertiary">Ativo</MudButton>
+                        </MudTd>
+                    }
+                    else
+                    {
+                        <MudTd>
+                            <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error">Inativo</MudButton>
+                        </MudTd>
+                    }
                     <MudTd>
                         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => AbrirModal(registro))">Ver Detalhes</MudButton>
                     </MudTd>

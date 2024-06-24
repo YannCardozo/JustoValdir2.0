@@ -156,7 +156,9 @@ public class UsuariosController : ControllerBase
                     UserName = usuario.UserName,
                     Email = usuario.Email,
                     CPF = usuario.CPF,
-                    Roles = roles
+                    Roles = roles,
+                    EmailConfirmed = usuario.EmailConfirmed
+                   
                 });
             }
 
