@@ -121,6 +121,11 @@ namespace WebApi.Controller
                     return NotFound("Usuário não cadastrado.");
                 }
 
+                if (!user.EmailConfirmed)
+                {
+                    return Unauthorized($"Autorize sua conta no email enviado a:{user.Email}");
+                }
+
                 // Verifica a senha
                 if (await _userManager.CheckPasswordAsync(user, model.Password!))
                 {

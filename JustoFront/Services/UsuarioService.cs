@@ -14,7 +14,6 @@ namespace JustoFront.Services
     {
         Task<HttpResponseMessage> CreateUsuarioAsync(UsuarioComRoleSenha user);
         Task<List<UsuarioComRole>> GetUsuariosAsync();
-        Task<List<ApplicationUser>> GetUsuariosDoIdentity();
         Task<List<string>> GetRolesAsync();
         Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuarionovo);
         //Task<HttpResponseMessage> UpdateUserAsync(UsuarioComRole usuario);
