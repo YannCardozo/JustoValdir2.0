@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -296,7 +297,7 @@ namespace WebApi.Controller
             var user = await _userManager.FindByEmailAsync(email);
             if (user == null)
             {
-                return BadRequest("Usuário não encontrado.");
+                return BadRequest("Email não encontrado.");
             }
 
             var token = await _userManager.GenerateEmailConfirmationTokenAsync(user);
@@ -308,6 +309,29 @@ namespace WebApi.Controller
             else
             {
                 return BadRequest("Falha ao confirmar o e-mail.");
+            }
+        }
+
+        [Authorize]
+        [HttpGet]
+        [Route("desativaemailmanual")]
+        public async Task<IActionResult> DesativaEmailManual(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+            if (user == null)
+            {
+                return BadRequest("Email não encontrado.");
+            }
+            //desativa o email setando emailconfirmed como falso.
+            user.EmailConfirmed = false;
+            var result = await _userManager.UpdateAsync(user);
+            if (result.Succeeded)
+            {
+                return Ok("E-mail desativado.");
+            }
+            else
+            {
+                return BadRequest("Falha ao desativar o e-mail.");
             }
         }
     }

@@ -44,8 +44,8 @@ else
                     @if (@registro.EmailConfirmed == true)
                     {
                         <MudTd>
-                            <MudButton Variant="Variant.Filled" Color="Color.Tertiary">Ativo</MudButton>
-                        </MudTd>
+                        <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="@((e => DesativarUsuario(registro.Email)))">Ativo</MudButton>
+                    </MudTd>
                     }
                     else
                     {
@@ -147,6 +147,8 @@ else
                 mensagem = "Usuário ativado com sucesso!";
                 await JsRuntime.InvokeVoidAsync("alert", mensagem);
                 StateHasChanged();
+                Navigation.NavigateTo("/");
+                Navigation.NavigateTo("/Usuarios/index");
             }
             else
             {
@@ -160,8 +162,31 @@ else
             mensagem = $"Erro: {ex.Message}";
         }
     }
-    public void DesativarUsuario(string email)
+    public async Task DesativarUsuario(string email)
     {
-        Console.WriteLine(email);
+        try
+        {
+            var response = await UsuarioService.DesativarUsuarioEmail(email);
+
+            if (response.IsSuccessStatusCode)
+            {
+                mensagem = "Usuário desativado com sucesso!";
+                await JsRuntime.InvokeVoidAsync("alert", mensagem);
+                StateHasChanged();
+                Navigation.NavigateTo("/");
+                Navigation.NavigateTo("/Usuarios/index");
+            }
+            else
+            {
+                mensagem = "Falha ao desativar o usuário.";
+                await JsRuntime.InvokeVoidAsync("alert", mensagem);
+                StateHasChanged();
+
+            }
+        }
+        catch (Exception ex)
+        {
+            mensagem = $"Erro: {ex.Message}";
+        }
     }
 }

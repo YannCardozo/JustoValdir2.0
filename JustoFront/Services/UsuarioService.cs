@@ -20,6 +20,7 @@ namespace JustoFront.Services
         Task<HttpResponseMessage> DeleteUserAsync(string id);
         Task<ApplicationUser> GetUsuarioByCpfAsync(string cpf);
         Task<HttpResponseMessage> AtivarUsuarioEmail(string email);
+        Task<HttpResponseMessage> DesativarUsuarioEmail(string email);
     }
 
     public class UsuarioService : IUsuarioService
@@ -185,6 +186,19 @@ namespace JustoFront.Services
             }
 
             var urlemail = $"api/Auth/confirmaemailmanual?email={Uri.EscapeDataString(email)}";
+
+            var response = await _httpClient.GetAsync(urlemail);
+            return response;
+        }
+
+        public async Task<HttpResponseMessage> DesativarUsuarioEmail(string email)
+        {
+            if (string.IsNullOrWhiteSpace(email))
+            {
+                throw new ArgumentException("Email do usuário a ser desativado não pode ser vazio ou nulo.");
+            }
+
+            var urlemail = $"api/Auth/desativaemailmanual?email={Uri.EscapeDataString(email)}";
 
             var response = await _httpClient.GetAsync(urlemail);
             return response;
