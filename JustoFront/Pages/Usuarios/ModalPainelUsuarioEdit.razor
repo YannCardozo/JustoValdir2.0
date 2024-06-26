@@ -1,0 +1,145 @@
+﻿@using System.Net.Http.Json
+@using Commom.models.Usuarios
+@using Justo.Entities.Entidades
+@using JustoFront.Services
+@using JustoFront.Services.Interface
+@using MudBlazor
+@inject NavigationManager Navegacao
+@inject IUsuarioService UsuarioService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
+<MudDialog DisableSidePadding="true">
+    <DialogContent>
+        <MudContainer Style="max-height: 300px; overflow-y: scroll">
+            @if (Loading)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <EditForm Model="@UsuarioCrud" OnValidSubmit="OnValidSubmit">
+                    <DataAnnotationsValidator />
+                    <MudGrid>
+                        <MudItem xs="12" sm="7">
+                            <MudCard>
+                                <MudCardContent>
+                                    <MudTextField Label="Nome de usuário" @bind-Value="UsuarioCrud.UserName" For="@(() => UsuarioCrud.UserName)" />
+                                    <MudTextField Label="Email" Class="mt-3" @bind-Value="UsuarioCrud.Email" For="@(() => UsuarioCrud.Email)" />
+                                    <MudTextField Label="Cpf" Class="mt-3" @bind-Value="UsuarioCrud.CPF" For="@(() => UsuarioCrud.CPF)" ReadOnly/>
+                                    <MudTextField Label="Senha" Class="mt-3" @bind-Value="UsuarioCrud.Password" For="@(() => UsuarioCrud.Password)" InputType="InputType.Password" />
+                                    <MudSelect Label="Perfil" Class="mt-3" @bind-Value="UsuarioCrud.RoleSelecionado" For="@(() => UsuarioCrud.RoleSelecionado)">
+                                        <MudSelectItem Value="UsuarioCrud.RoleSelecionado" Disabled>Selecione um perfil</MudSelectItem>
+                                        @foreach (var role in Roles)
+                                        {
+                                            <MudSelectItem Value="@role">@role</MudSelectItem>
+                                        }
+                                    </MudSelect>
+                                </MudCardContent>
+                                <MudCardActions>
+                                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Salvar</MudButton>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>@* 
+                        <MudItem xs="12" sm="5">
+                            <MudPaper Class="pa-4 mud-height-full">
+                                <MudText Typo="Typo.subtitle2">Resumo de validação</MudText>
+                                @if (success)
+                                {
+                                    <MudText Color="Color.Success">Sucesso</MudText>
+                                }
+                                else
+                                {
+                                    <MudText Color="@Color.Error">
+                                        <ValidationSummary />
+                                    </MudText>
+                                }
+                            </MudPaper>
+                        </MudItem> *@
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.body2" Align="Align.Center">
+                                Preencha o formulário corretamente para ver a mensagem de sucesso.
+                            </MudText>
+                        </MudItem>
+                    </MudGrid>
+                </EditForm>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Cancelar">Cancelar</MudButton>
+        <MudButton Color="Color.Primary" OnClick="Ok">Ok</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    bool success;
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Parameter] public UsuarioComRole UsuarioParametro { get; set; }
+    [Inject] HttpClient HttpClient { get; set; }
+    private List<string> Roles { get; set; } = new();
+
+    public UsuarioComRole UsuarioCrud { get; set; } = new();
+    private bool Loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (UsuarioParametro != null)
+        {
+            UsuarioCrud = UsuarioParametro;
+        }
+
+        Loading = true;
+        Roles = await UsuarioService.GetRolesAsync();
+        Loading = false;
+    }
+
+    private void Ok()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancelar()
+    {
+        MudDialog.Close(DialogResult.Cancel());
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        success = true;
+        try
+        {
+            var result = await UsuarioService.UpdateUserAsync(UsuarioCrud);
+            var RetornoApiMensagem = await result.Content.ReadAsStringAsync();
+
+            if (result.IsSuccessStatusCode)  // Verifica se a resposta foi bem-sucedida
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Usuário alterado com sucesso.");
+                Navigation.NavigateTo("/");
+                Navigation.NavigateTo("/Usuarios/index");
+
+            }
+            else
+            {
+                // Lê a mensagem de erro do conteúdo da resposta
+
+                await JSRuntime.InvokeVoidAsync("alert", $"Erro ao alterar Usuário: {RetornoApiMensagem}");
+                Navigation.NavigateTo("/");
+                Navigation.NavigateTo("/Usuarios/index");
+
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Erro ao alterar usuário: {ex.Message}");
+            Navigation.NavigateTo("/");
+            Navigation.NavigateTo("/Usuarios/index");
+        }
+        finally
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        StateHasChanged();
+    }
+}

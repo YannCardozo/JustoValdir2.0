@@ -1,0 +1,121 @@
+﻿@using System.Net.Http.Json
+@using Commom.models.Usuarios
+@using Justo.Entities.Entidades
+@using JustoFront.Services
+@using JustoFront.Services.Interface
+@using MudBlazor
+@inject NavigationManager Navegacao
+@inject IUsuarioService UsuarioService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager Navigation
+
+<MudDialog >
+    <DialogContent>
+        <MudContainer Style="max-height: 300px; overflow-y: scroll">
+            @if (Loading)
+            {
+                <MudProgressCircular Indeterminate="true"></MudProgressCircular>
+            }
+            else
+            {
+                <EditForm Model="@UsuarioCrud" OnValidSubmit="OnValidSubmit">
+                    <DataAnnotationsValidator />
+                    <MudGrid>
+                        <MudItem xs="12">
+                            <MudCard Class="pa-3">
+                                <MudCardContent>
+                                    <MudTextField Label="Nome de usuário" FullWidth="true" @bind-Value="UsuarioCrud.UserName" For="@(() => UsuarioCrud.UserName)" />
+                                    <MudTextField Label="Email" FullWidth="true" Class="mt-3" @bind-Value="UsuarioCrud.Email" For="@(() => UsuarioCrud.Email)" />
+                                    <MudTextField Label="Cpf" FullWidth="true" Class="mt-3" @bind-Value="UsuarioCrud.CPF" For="@(() => UsuarioCrud.CPF)" />
+                                    @if (LoadAtivo)
+                                    {
+                                        <CarregarTransicao MostraComponente="true"></CarregarTransicao>                                    }
+                                    <MudTextField Label="Senha" FullWidth="true" Class="mt-3" @bind-Value="UsuarioCrud.Password" For="@(() => UsuarioCrud.Password)" InputType="InputType.Password" />
+                                    <MudSelect Label="Perfil" FullWidth="true" Class="mt-3" @bind-Value="UsuarioCrud.RoleSelecionado" For="@(() => UsuarioCrud.RoleSelecionado)">
+                                        <MudSelectItem Value="UsuarioCrud.RoleSelecionado"  Disabled>Selecione um perfil</MudSelectItem>
+                                        @foreach (var role in Roles)
+                                        {
+                                            <MudSelectItem Value="@role">@role</MudSelectItem>
+                                        }
+                                    </MudSelect>
+
+                                </MudCardContent>
+                                <MudCardActions>
+                                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Class="ml-auto">Salvar</MudButton>
+                                </MudCardActions>
+                            </MudCard>
+                        </MudItem>
+                        <MudItem xs="12">
+                            <MudText Typo="Typo.body2" Align="Align.Center">
+                                Preencha os dados corretamente antes de enviar.
+                            </MudText>
+                        </MudItem>
+                    </MudGrid>
+                </EditForm>
+            }
+        </MudContainer>
+    </DialogContent>
+    <DialogActions>
+        <MudButton Color="Color.Primary" OnClick="Cancelar">Cancelar</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    bool success;
+
+    [CascadingParameter] MudDialogInstance MudDialog { get; set; }
+    [Inject] HttpClient HttpClient { get; set; }
+
+    public bool LoadAtivo { get; set; } = false;
+    private List<string> Roles { get; set; } = new();
+
+    public UsuarioComRoleSenha UsuarioCrud { get; set; } = new();
+    private bool Loading = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        Roles = await UsuarioService.GetRolesAsync();
+    }
+
+    private void Ok()
+    {
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+
+    private void Cancelar()
+    {
+        MudDialog.Close(DialogResult.Cancel());
+    }
+
+    private async Task OnValidSubmit(EditContext context)
+    {
+        LoadAtivo = true;
+        success = true;
+        try
+        {
+            var result = await UsuarioService.CreateUsuarioAsync(UsuarioCrud);
+            var RetornoApiMensagem = await result.Content.ReadAsStringAsync();
+            if (result.IsSuccessStatusCode)
+            {
+                await JSRuntime.InvokeVoidAsync("alert", "Usuário criado com sucesso.");
+                Navigation.NavigateTo("/Usuarios/index", true);
+            }
+            else
+            {
+                await JSRuntime.InvokeVoidAsync("alert", $"Erro ao criar usuário: {RetornoApiMensagem}");
+                Navigation.NavigateTo("/Usuarios/index", true);
+            }
+        }
+        catch (Exception ex)
+        {
+            await JSRuntime.InvokeVoidAsync("alert", $"Erro ao criar usuário: {ex.Message}");
+            Navigation.NavigateTo("/Usuarios/index", true);
+        }
+        finally
+        {
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        LoadAtivo = false;
+        StateHasChanged();
+    }
+}

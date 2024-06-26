@@ -8,6 +8,7 @@
 @inject IUsuarioService UsuarioService
 @inject NavigationManager Navigation
 @inject IJSRuntime JsRuntime
+@inject IDialogService DialogService
 
 <h3>Painel de Usuários</h3>
 
@@ -34,84 +35,84 @@ else
         <MudTh>Detalhes</MudTh>
         <MudTh>Remover</MudTh>
         @foreach (var registro in usuarios)
-            {
-                <MudTr>
-                    <MudTd DataLabel="Id">@registro.Id</MudTd>
-                    <MudTd DataLabel="Usuário">@registro.UserName</MudTd>
-                    <MudTd DataLabel="Email">@registro.Email</MudTd>
-                    <MudTd DataLabel="CPF">@registro.CPF</MudTd>
-                    <MudTd DataLabel="Perfil">@(registro.Roles != null ? string.Join(", ", registro.Roles) : "Usuário sem perfil cadastrado.")</MudTd>
-                    @if (@registro.EmailConfirmed == true)
-                    {
-                        <MudTd>
+        {
+            <MudTr>
+                <MudTd DataLabel="Id">@registro.Id</MudTd>
+                <MudTd DataLabel="Usuário">@registro.UserName</MudTd>
+                <MudTd DataLabel="Email">@registro.Email</MudTd>
+                <MudTd DataLabel="CPF">@registro.CPF</MudTd>
+                <MudTd DataLabel="Perfil">@(registro.Roles != null ? string.Join(", ", registro.Roles) : "Usuário sem perfil cadastrado.")</MudTd>
+                @if (@registro.EmailConfirmed == true)
+                {
+                    <MudTd>
                         <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="@((e => DesativarUsuario(registro.Email)))">Ativo</MudButton>
                     </MudTd>
-                    }
-                    else
-                    {
-                        <MudTd>
+                }
+                else
+                {
+                    <MudTd>
                         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@((e => AtivarUsuario(registro.Email)))">Inativo</MudButton>
-                        </MudTd>
-                    }
-                    <MudTd>
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => AbrirModal(registro))">Ver Detalhes</MudButton>
                     </MudTd>
-                    <MudTd>
-                        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => RemoverUsuario(registro))">Remover</MudButton>
-                    </MudTd>
-                </MudTr>
-            }
+                }
+                <MudTd>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => EditarUsuario(registro))">Ver Detalhes</MudButton>
+                </MudTd>
+                <MudTd>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => RemoverUsuario(registro))">Remover</MudButton>
+                </MudTd>
+            </MudTr>
+        }
 
     </MudSimpleTable>
 }
 
-<ModalPainelEdit UsuarioModal="usuarioSelecionado" ModalVisivel="ModalAbertoEdit" OnClose="FecharModal" />
-<ModalPainelAdd ModalVisivel="ModalAbertoAdd" OnClose="FecharModal" />
-
-
 @code {
     private List<UsuarioComRole> usuarios;
-    private bool ModalAbertoAdd = false; 
+    private bool ModalAbertoAdd = false;
     private bool ModalAbertoEdit = false;
     public UsuarioComRole usuarioSelecionado = new();
     private string email;
     private string mensagem;
+
+    private IDialogReference dialogReference;
+
+    private void EditarUsuario(UsuarioComRole usuario)
+    {
+        var parameters = new DialogParameters
+            {
+                ["UsuarioParametro"] = usuario
+            };
+
+        dialogReference = DialogService.Show<ModalPainelUsuarioEdit>("Editar Usuário", parameters);
+    }
+
     protected override async Task OnInitializedAsync()
     {
         usuarios = await UsuarioService.GetUsuariosAsync();
     }
 
-    public void AbrirModal(UsuarioComRole usuario)
+    public void AdicionarUsuario()
     {
-        usuarioSelecionado = usuario;
-        ModalAbertoEdit = true;
-        StateHasChanged();
+        dialogReference = DialogService.Show<ModalPainelUsuarioAdiciona>("Adicionar Usuário");
     }
 
     public void FecharModal()
     {
         ModalAbertoEdit = false;
         ModalAbertoAdd = false;
+        dialogReference?.Close();
         StateHasChanged();
     }
 
-    public void AdicionarUsuario()
-    {
-        ModalAbertoAdd = true;
-        StateHasChanged();
-    }
     public async Task RemoverUsuario(UsuarioComRole usuario)
     {
         var confirmed = await JsRuntime.InvokeAsync<bool>("confirm", "Deseja mesmo remover este usuário?");
         if (confirmed)
         {
-            // Primeiro, localize o ApplicationUser correspondente pelo CPF
             var usuarioParaRemover = await UsuarioService.GetUsuarioByCpfAsync(usuario.CPF);
             if (usuarioParaRemover != null)
             {
-                // Procede com a remoção usando o ID do ApplicationUser encontrado
                 var resultadoRemocao = await UsuarioService.DeleteUserAsync(usuarioParaRemover.CPF);
-                //erro esta AQUI, PRECISA VERIFICAR PQ N ESTA VINDO SUCCESS
                 if (resultadoRemocao.IsSuccessStatusCode)
                 {
                     await JsRuntime.InvokeVoidAsync("alert", $"{usuarioParaRemover.UserName} removido com sucesso");
@@ -162,6 +163,7 @@ else
             mensagem = $"Erro: {ex.Message}";
         }
     }
+
     public async Task DesativarUsuario(string email)
     {
         try
@@ -181,7 +183,6 @@ else
                 mensagem = "Falha ao desativar o usuário.";
                 await JsRuntime.InvokeVoidAsync("alert", mensagem);
                 StateHasChanged();
-
             }
         }
         catch (Exception ex)
