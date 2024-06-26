@@ -26,7 +26,6 @@ else
         <MudIcon Icon="Icons.Material.Filled.Add" /> Adicionar
     </MudButton>
     <MudSimpleTable Style="margin-top: 50px !important;" Class="mt-5" Hover="true" Bordered="true">
-        <MudTh>Id</MudTh>
         <MudTh>Usuário</MudTh>
         <MudTh>Email</MudTh>
         <MudTh>CPF</MudTh>
@@ -37,7 +36,6 @@ else
         @foreach (var registro in usuarios)
         {
             <MudTr>
-                <MudTd DataLabel="Id">@registro.Id</MudTd>
                 <MudTd DataLabel="Usuário">@registro.UserName</MudTd>
                 <MudTd DataLabel="Email">@registro.Email</MudTd>
                 <MudTd DataLabel="CPF">@registro.CPF</MudTd>
@@ -45,11 +43,12 @@ else
                 @if (@registro.EmailConfirmed == true)
                 {
                     <MudTd>
-                        <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="@((e => DesativarUsuario(registro.Email)))">Ativo</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Block" OnClick="@((e => DesativarUsuario(registro.Email)))">Ativo</MudButton>
                     </MudTd>
                 }
                 else
                 {
+                    
                     <MudTd>
                         <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@((e => AtivarUsuario(registro.Email)))">Inativo</MudButton>
                     </MudTd>
@@ -58,7 +57,7 @@ else
                     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => EditarUsuario(registro))">Ver Detalhes</MudButton>
                 </MudTd>
                 <MudTd>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => RemoverUsuario(registro))">Remover</MudButton>
+                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Bolt" Color="Color.Error" OnClick="@(e => RemoverUsuario(registro))">Remover</MudButton>
                 </MudTd>
             </MudTr>
         }
