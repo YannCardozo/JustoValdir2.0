@@ -22,15 +22,15 @@ else if (usuarios.Count == 0)
 }
 else
 {
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AdicionarUsuario">
-        <MudIcon Icon="Icons.Material.Filled.Add" /> Adicionar
+    <MudButton Variant="Variant.Filled" Color="Color.Tertiary" OnClick="AdicionarUsuario">
+        <MudIcon Icon="@Icons.Material.Filled.Add" /> Adicionar
     </MudButton>
     <MudSimpleTable Style="margin-top: 50px !important;" Class="mt-5" Hover="true" Bordered="true">
         <MudTh>Usuário</MudTh>
         <MudTh>Email</MudTh>
         <MudTh>CPF</MudTh>
         <MudTh>Perfil</MudTh>
-        <MudTh>Status</MudTh>
+        <MudTh>Ativar/Desativar</MudTh>
         <MudTh>Detalhes</MudTh>
         <MudTh>Remover</MudTh>
         @foreach (var registro in usuarios)
@@ -43,21 +43,21 @@ else
                 @if (@registro.EmailConfirmed == true)
                 {
                     <MudTd>
-                        <MudButton Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Block" OnClick="@((e => DesativarUsuario(registro.Email)))">Ativo</MudButton>
+                        <MudButton Variant="Variant.Filled" Color="Color.Tertiary" StartIcon="@Icons.Material.Filled.Bolt" OnClick="@((e => DesativarUsuario(registro.Email)))">Ativo</MudButton>
                     </MudTd>
                 }
                 else
                 {
                     
                     <MudTd>
-                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@((e => AtivarUsuario(registro.Email)))">Inativo</MudButton>
+                        <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Block"  Color="Color.Error" OnClick="@((e => AtivarUsuario(registro.Email)))">Inativo</MudButton>
                     </MudTd>
                 }
                 <MudTd>
-                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@(e => EditarUsuario(registro))">Ver Detalhes</MudButton>
+                    <MudButton Variant="Variant.Filled"  Color="Color.Warning" OnClick="@(e => EditarUsuario(registro))">Ver Detalhes</MudButton>
                 </MudTd>
                 <MudTd>
-                    <MudButton Variant="Variant.Filled" StartIcon="@Icons.Material.Filled.Bolt" Color="Color.Error" OnClick="@(e => RemoverUsuario(registro))">Remover</MudButton>
+                    <MudButton Variant="Variant.Filled"  StartIcon="@Icons.Material.Filled.Delete" Color="Color.Error" OnClick="@(e => RemoverUsuario(registro))">Remover</MudButton>
                 </MudTd>
             </MudTr>
         }
@@ -72,7 +72,7 @@ else
     public UsuarioComRole usuarioSelecionado = new();
     private string email;
     private string mensagem;
-
+    private MudTheme Theme = new MudTheme();
     private IDialogReference dialogReference;
 
     private void EditarUsuario(UsuarioComRole usuario)
