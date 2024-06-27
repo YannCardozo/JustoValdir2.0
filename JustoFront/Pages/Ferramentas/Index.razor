@@ -1,0 +1,15 @@
+﻿@page "/Ferramentas/CalculadoraJuridica"
+@layout LayoutMudBlazor
+@inject IJSRuntime JS
+
+<div id="widget-container"></div>
+
+@code {
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender)
+        {
+            await JS.InvokeVoidAsync("loadWidget");
+        }
+    }
+}
