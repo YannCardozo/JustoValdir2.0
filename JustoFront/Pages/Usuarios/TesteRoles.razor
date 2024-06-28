@@ -1,0 +1,62 @@
+﻿@page "/Usuarios/TesteRoles"
+@using System.Security.Claims
+@inject AuthenticationStateProvider AuthenticationStateProvider
+@layout LayoutMudBlazor
+<h3>Debug Claims</h3>
+
+<button class="btn btn-primary" @onclick="CheckUserClaims">Check User Claims</button>
+
+@if (isAdmin)
+{
+    <p>Você é um administrador</p>
+}
+
+@if (isUser)
+{
+    <p>Você é um usuário comum</p>
+}
+
+@if (isAuthenticated)
+{
+    <p>Você está autenticado</p>
+}
+
+<ul>
+    @if (userClaims != null)
+    {
+        @foreach (var claim in userClaims)
+        {
+            <li>@claim.Type: @claim.Value</li>
+        }
+    }
+</ul>
+
+@code {
+    private IEnumerable<Claim> userClaims;
+    private bool isAuthenticated = false;
+    private bool isAdmin = false;
+    private bool isUser = false;
+
+    private async Task CheckUserClaims()
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity.IsAuthenticated)
+        {
+            userClaims = user.Claims;
+            isAuthenticated = true;
+            isAdmin = user.IsInRole("Admin");
+            isUser = user.IsInRole("Usuário");
+
+            foreach (var claim in userClaims)
+            {
+                Console.WriteLine($"{claim.Type}: {claim.Value}");
+            }
+        }
+        else
+        {
+            Console.WriteLine("User is not authenticated");
+        }
+    }
+}

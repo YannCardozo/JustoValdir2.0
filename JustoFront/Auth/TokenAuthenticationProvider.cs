@@ -34,10 +34,7 @@ public class TokenAuthenticationProvider : AuthenticationStateProvider, IAuthori
 
     public AuthenticationState CreateAuthenticationState(string token)
     {
-        // Adiciona o token ao cabeçalho das requisições
         http.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("bearer", token);
-
-        // Extrai as claims do token JWT
         return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(ParseClaimsFromJwt(token), "jwt")));
     }
 
@@ -48,8 +45,7 @@ public class TokenAuthenticationProvider : AuthenticationStateProvider, IAuthori
         var jsonBytes = ParseBase64WithoutPadding(payload);
         var keyValuePairs = JsonSerializer.Deserialize<Dictionary<string, object>>(jsonBytes);
 
-        keyValuePairs.TryGetValue(ClaimTypes.Role, out object roles);
-        keyValuePairs.TryGetValue(ClaimTypes.Email, out object email);
+        keyValuePairs.TryGetValue("role", out object roles);
 
         if (roles != null)
         {
@@ -65,13 +61,6 @@ public class TokenAuthenticationProvider : AuthenticationStateProvider, IAuthori
             {
                 claims.Add(new Claim(ClaimTypes.Role, roles.ToString()));
             }
-            keyValuePairs.Remove(ClaimTypes.Role);
-        }
-
-        if (email != null)
-        {
-            claims.Add(new Claim(ClaimTypes.Email, email.ToString()));
-            keyValuePairs.Remove(ClaimTypes.Email);
         }
 
         claims.AddRange(keyValuePairs.Select(kvp => new Claim(kvp.Key, kvp.Value.ToString())));
@@ -90,29 +79,15 @@ public class TokenAuthenticationProvider : AuthenticationStateProvider, IAuthori
 
     public async Task Login(string token)
     {
-        try
-        {
-            await js.SetInLocalStorage(tokenKey, token);
-            var authState = CreateAuthenticationState(token);
-            NotifyAuthenticationStateChanged(Task.FromResult(authState));
-        }
-        catch (Exception)
-        {
-            throw;
-        }
+        await js.SetInLocalStorage(tokenKey, token);
+        var authState = CreateAuthenticationState(token);
+        NotifyAuthenticationStateChanged(Task.FromResult(authState));
     }
 
     public async Task Logout()
     {
-        try
-        {
-            await js.RemoveItem(tokenKey);
-            http.DefaultRequestHeaders.Authorization = null;
-            NotifyAuthenticationStateChanged(Task.FromResult(notAuthenticate));
-        }
-        catch (Exception)
-        {
-            throw;
-        }
+        await js.RemoveItem(tokenKey);
+        http.DefaultRequestHeaders.Authorization = null;
+        NotifyAuthenticationStateChanged(Task.FromResult(notAuthenticate));
     }
 }
