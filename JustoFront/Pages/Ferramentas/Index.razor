@@ -7,11 +7,14 @@
 @code {
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-
-
         if (firstRender)
         {
             await JS.InvokeVoidAsync("loadWidget");
         }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        await JS.InvokeVoidAsync("removeWidget");
     }
 }
