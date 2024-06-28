@@ -9,6 +9,8 @@
     </div>
 </div> *@
 
+@inject NavigationManager Navigate
+
 <div class="@NavMenuCssClass nav-scrollable cor-primaria" @onclick="ToggleNavMenu">
     <nav class="flex-column">
         <div class="nav-item px-3">
@@ -16,14 +18,14 @@
                 <span class="oi oi-home" aria-hidden="true"></span> Home
             </NavLink>
         </div>
-@*         <Microsoft.AspNetCore.Components.Authorization.AuthorizeView  Roles="Admin">
- *@            <div class="nav-item px-3">
+        <Microsoft.AspNetCore.Components.Authorization.AuthorizeView  Roles="Admin">
+            <div class="nav-item px-3">
                 <NavLink class="nav-link" href="/Usuarios/TesteRoles">
                     <span class="oi oi-list-rich" aria-hidden="true"></span> Teste Roles
                 </NavLink>
             </div>
-@*         </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
- *@        <div class="nav-item px-3">
+         </Microsoft.AspNetCore.Components.Authorization.AuthorizeView>
+         <div class="nav-item px-3">
             <NavLink class="nav-link" href="advogados/index">
                 <span class="oi oi-list-rich" aria-hidden="true"></span> Advogados
             </NavLink>
@@ -46,6 +48,10 @@
             </NavLink>
         </div>
     </nav>
+
+    <div class="text-center">
+        <MudButton  OnClick="Deslogar" Variant="Variant.Filled" Color="Color.Error">Sair</MudButton>
+    </div>
 </div>
 
 @code {
@@ -57,4 +63,9 @@
     {
         collapseNavMenu = !collapseNavMenu;
     }
+    private void Deslogar()
+    {
+        Navigate.NavigateTo("/logout");
+    }
+
 }
