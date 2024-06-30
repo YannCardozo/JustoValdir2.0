@@ -3,10 +3,12 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace Infra.Migrations
 {
     /// <inheritdoc />
-    public partial class Inicial : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -15,12 +17,11 @@ namespace Infra.Migrations
                 name: "Advogado",
                 columns: table => new
                 {
-                    ProcessoId = table.Column<int>(type: "int", nullable: false),
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Oab = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Cpf = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Oab = table.Column<string>(type: "nvarchar(450)", nullable: true),
+                    Cpf = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     DataCadastro = table.Column<DateTime>(type: "datetime2", nullable: false),
                     CadastradoPor = table.Column<int>(type: "int", nullable: false),
                     DataAtualizacao = table.Column<DateTime>(type: "datetime2", nullable: false),
@@ -50,9 +51,11 @@ namespace Infra.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    USR_CPF = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    USR_CPF = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     USR_ADM = table.Column<bool>(type: "bit", nullable: false),
                     USR_ADV = table.Column<bool>(type: "bit", nullable: false),
+                    USR_REFRESHTOKEN = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    USR_REFRESHTOKENEXPIRYTIME = table.Column<DateTime>(type: "datetime2", nullable: true),
                     UserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     NormalizedUserName = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
                     Email = table.Column<string>(type: "nvarchar(256)", maxLength: 256, nullable: true),
@@ -146,54 +149,6 @@ namespace Infra.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Processo",
-                columns: table => new
-                {
-                    AdvogadoId = table.Column<int>(type: "int", nullable: true),
-                    Id = table.Column<int>(type: "int", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    CodPJEC = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ObsProcesso = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DataFim = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    MeioDeComunicacao = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MeioDeComunicacaoData = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    Prazo = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProximoPrazo = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ProximoPrazoData = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PJECAcao = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UltimaMovimentacaoProcessual = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    UltimaMovimentacaoProcessualData = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    AdvogadaCiente = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Comarca = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    OrgaoJulgador = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Competencia = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    MotivosProcesso = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    SegredoJustica = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    JusGratis = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TutelaLiminar = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Prioridade = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Autuacao = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    TituloProcesso = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    PartesProcesso = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    DataAbertura = table.Column<DateTime>(type: "datetime2", nullable: true),
-                    ValorDaCausa = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    DataCadastro = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    CadastradoPor = table.Column<int>(type: "int", nullable: false),
-                    DataAtualizacao = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    AtualizadoPor = table.Column<int>(type: "int", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_Processo", x => x.Id);
-                    table.ForeignKey(
-                        name: "FK_Processo_Advogado_AdvogadoId",
-                        column: x => x.AdvogadoId,
-                        principalTable: "Advogado",
-                        principalColumn: "Id");
-                });
-
-            migrationBuilder.CreateTable(
                 name: "AspNetRoleClaims",
                 columns: table => new
                 {
@@ -239,8 +194,8 @@ namespace Infra.Migrations
                 name: "AspNetUserLogins",
                 columns: table => new
                 {
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    ProviderKey = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ProviderKey = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     ProviderDisplayName = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false)
                 },
@@ -284,8 +239,8 @@ namespace Infra.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    LoginProvider = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(128)", maxLength: 128, nullable: false),
+                    LoginProvider = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(450)", nullable: false),
                     Value = table.Column<string>(type: "nvarchar(max)", nullable: true)
                 },
                 constraints: table =>
@@ -304,12 +259,11 @@ namespace Infra.Migrations
                 columns: table => new
                 {
                     EnderecoId = table.Column<int>(type: "int", nullable: true),
-                    ProcessoId = table.Column<int>(type: "int", nullable: true),
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     Nome = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     NomeMae = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    Cpf = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Cpf = table.Column<string>(type: "nvarchar(450)", nullable: true),
                     Rg = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ComprovanteDeResidencia = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     Cnh = table.Column<string>(type: "nvarchar(max)", nullable: true),
@@ -348,10 +302,59 @@ namespace Infra.Migrations
                         column: x => x.EnderecoId,
                         principalTable: "Endereco",
                         principalColumn: "Id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "Processo",
+                columns: table => new
+                {
+                    AdvogadoId = table.Column<int>(type: "int", nullable: true),
+                    ClienteId = table.Column<int>(type: "int", nullable: true),
+                    Id = table.Column<int>(type: "int", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    CodPJEC = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    ObsProcesso = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DataFim = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    MeioDeComunicacao = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MeioDeComunicacaoData = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    Prazo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProximoPrazo = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ProximoPrazoData = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PJECAcao = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UltimaMovimentacaoProcessual = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    UltimaMovimentacaoProcessualData = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    AdvogadaCiente = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Comarca = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    OrgaoJulgador = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Competencia = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    MotivosProcesso = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    SegredoJustica = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    JusGratis = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TutelaLiminar = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Prioridade = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Autuacao = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    TituloProcesso = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    PartesProcesso = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    DataAbertura = table.Column<DateTime>(type: "datetime2", nullable: true),
+                    ValorDaCausa = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    Nome = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    DataCadastro = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    CadastradoPor = table.Column<int>(type: "int", nullable: false),
+                    DataAtualizacao = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    AtualizadoPor = table.Column<int>(type: "int", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Processo", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Cliente_Processo_ProcessoId",
-                        column: x => x.ProcessoId,
-                        principalTable: "Processo",
+                        name: "FK_Processo_Advogado_AdvogadoId",
+                        column: x => x.AdvogadoId,
+                        principalTable: "Advogado",
+                        principalColumn: "Id");
+                    table.ForeignKey(
+                        name: "FK_Processo_Cliente_ClienteId",
+                        column: x => x.ClienteId,
+                        principalTable: "Cliente",
                         principalColumn: "Id");
                 });
 
@@ -393,6 +396,7 @@ namespace Infra.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CodPJEC = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    PJECAcao = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     ConteudoAtualizacao = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     TituloMovimento = table.Column<string>(type: "nvarchar(max)", nullable: true),
                     DataMovimentacao = table.Column<DateTime>(type: "datetime2", nullable: true),
@@ -445,6 +449,28 @@ namespace Infra.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.InsertData(
+                table: "AspNetRoles",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "2dfe6846-4241-413e-8358-58fa51525908", "48cb839b-b66a-4aa5-a7ba-0187c6d04553", "Usuário", "USUÁRIO" },
+                    { "839b3f85-7631-4f03-a2b3-064fc89d85f6", "7549e74e-5580-421e-b30c-48fb1c9d4b98", "Admin", "ADMIN" }
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Advogado_Cpf",
+                table: "Advogado",
+                column: "Cpf",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Advogado_Oab",
+                table: "Advogado",
+                column: "Oab",
+                unique: true,
+                filter: "[Oab] IS NOT NULL");
+
             migrationBuilder.CreateIndex(
                 name: "IX_AdvogadoEspecialidade_AdvogadoId",
                 table: "AdvogadoEspecialidade",
@@ -483,6 +509,12 @@ namespace Infra.Migrations
                 column: "NormalizedEmail");
 
             migrationBuilder.CreateIndex(
+                name: "IX_AspNetUsers_USR_CPF",
+                table: "AspNetUsers",
+                column: "USR_CPF",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "UserNameIndex",
                 table: "AspNetUsers",
                 column: "NormalizedUserName",
@@ -490,16 +522,18 @@ namespace Infra.Migrations
                 filter: "[NormalizedUserName] IS NOT NULL");
 
             migrationBuilder.CreateIndex(
+                name: "IX_Cliente_Cpf",
+                table: "Cliente",
+                column: "Cpf",
+                unique: true,
+                filter: "[Cpf] IS NOT NULL");
+
+            migrationBuilder.CreateIndex(
                 name: "IX_Cliente_EnderecoId",
                 table: "Cliente",
                 column: "EnderecoId",
                 unique: true,
                 filter: "[EnderecoId] IS NOT NULL");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Cliente_ProcessoId",
-                table: "Cliente",
-                column: "ProcessoId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_Polo_ProcessoId",
@@ -510,6 +544,17 @@ namespace Infra.Migrations
                 name: "IX_Processo_AdvogadoId",
                 table: "Processo",
                 column: "AdvogadoId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Processo_ClienteId",
+                table: "Processo",
+                column: "ClienteId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Processo_CodPJEC",
+                table: "Processo",
+                column: "CodPJEC",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_ProcessosAtualizacao_ProcessoId",
@@ -544,9 +589,6 @@ namespace Infra.Migrations
                 name: "AspNetUserTokens");
 
             migrationBuilder.DropTable(
-                name: "Cliente");
-
-            migrationBuilder.DropTable(
                 name: "Polo");
 
             migrationBuilder.DropTable(
@@ -565,13 +607,16 @@ namespace Infra.Migrations
                 name: "AspNetUsers");
 
             migrationBuilder.DropTable(
-                name: "Endereco");
-
-            migrationBuilder.DropTable(
                 name: "Processo");
 
             migrationBuilder.DropTable(
                 name: "Advogado");
+
+            migrationBuilder.DropTable(
+                name: "Cliente");
+
+            migrationBuilder.DropTable(
+                name: "Endereco");
         }
     }
 }

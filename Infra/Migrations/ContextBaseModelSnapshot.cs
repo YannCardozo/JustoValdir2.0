@@ -737,15 +737,15 @@ namespace Infra.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "172fd178-c088-4bb8-9f03-c798ecedb324",
-                            ConcurrencyStamp = "13a70e2e-edbe-47e0-81dc-b37ea422e7a5",
+                            Id = "2dfe6846-4241-413e-8358-58fa51525908",
+                            ConcurrencyStamp = "48cb839b-b66a-4aa5-a7ba-0187c6d04553",
                             Name = "Usuário",
                             NormalizedName = "USUÁRIO"
                         },
                         new
                         {
-                            Id = "a7454904-39e2-42cf-b83b-1dbc9a9452d0",
-                            ConcurrencyStamp = "db88643f-a210-4b3a-bf83-bca5caae030c",
+                            Id = "839b3f85-7631-4f03-a2b3-064fc89d85f6",
+                            ConcurrencyStamp = "7549e74e-5580-421e-b30c-48fb1c9d4b98",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         });
