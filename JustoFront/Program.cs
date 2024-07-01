@@ -31,8 +31,12 @@ builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<IProcessoService, ProcessoService>();
 builder.Services.AddScoped<IPoloService, PoloService>();
 //caso não esteja configurado isso NÃO CONSEGUIRÁ solicitar da API
-//Utilizar em casa
-builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7114/") });
+
+//local
+//builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("https://localhost:7114/") });
+
+//producao
+builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri("http://justoadv.somee.com/") });
 
 
 

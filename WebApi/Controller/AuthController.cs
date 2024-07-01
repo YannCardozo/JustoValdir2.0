@@ -76,7 +76,7 @@ namespace WebApi.Controller
 
 
 
-
+        [AllowAnonymous]
         [HttpPost]
         [Route("AddUserToRole")]
         public async Task<IActionResult> AddUserToRole(string email, string roleName)
@@ -289,7 +289,7 @@ namespace WebApi.Controller
             }
         }
 
-        [Authorize]
+        [AllowAnonymous]
         [HttpGet]
         [Route("confirmaemailmanual")]
         public async Task<IActionResult> ConfirmEmailManual(string email)

@@ -140,7 +140,7 @@ public class UsuariosController : ControllerBase
         try
         {
             var usuarios = _userManager.Users.ToList();
-            if (usuarios == null )
+            if (usuarios == null || usuarios.Count == 0)
             {
                 return NotFound("Sem usuários Cadastrados");
             }
